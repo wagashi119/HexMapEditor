@@ -72,7 +72,7 @@
 <body>
     <h1>Hex Map Editor</h1>
     <pre>マップをクリックしてタイルを生成/削除します。設定を変更したら「設定を適用」ボタンを押してください。</pre>
-    <pre>タイルのナンバーは、A1, A2, ... Z26 のように、アルファベットと数字の組み合わせで表されます。</pre>
+    <pre>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</pre>
     <div class="tools">
         <div>
             <label>ツール: </label>
@@ -155,21 +155,23 @@
             <label>強調色:<input type="color" id="highlightColor" value="#000000" alpha="1"></label>
             <label>幅:<input type="number" class="line" id="highlightWidth" min="0" value="2"></label>
         </div>
-        <div class="control-group">
-            <label>タイル　　　</label>
-            <label>幅: <input type="number" id="tileCols" min="1" value="26"></label>
-            <label>高さ: <input type="number" id="tileRows" min="1" value="17"></label>
-        </div>
-        <div class="control-group">
-            <label>余白　</label>
-            <label>横: <input type="number" id="marginWidth" value="0"></label>
-            <label>縦: <input type="number" id="marginHeight" value="0"></label>
+        <div class="control-group" style="border: 1px solid #7a7a7a; padding: 10px; border-radius: 5px;">
+            <div>
+                <label>数　　</label>
+                <label>x: <input type="number" id="tileCols" min="1" value="26"></label>
+                <label>y: <input type="number" id="tileRows" min="1" value="17"></label>
+            </div>
+            <div class="control-group">
+                <label>余白　</label>
+                <label>x: <input type="number" id="marginWidth" value="0"></label>
+                <label>y: <input type="number" id="marginHeight" value="0"></label>
+            </div>
+            <div>
+                <button id="applySettingsBtn">設定を適用</button>
+            </div>
         </div>
         <div class="control-group">
             <label>透明度: <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.8"></label>
-        </div>
-        <div class="control-group">
-            <button id="applySettingsBtn">設定を適用</button>
         </div>
     </details>
     <div class="settings">

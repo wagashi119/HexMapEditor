@@ -127,6 +127,9 @@ class MapEditor {
             document.getElementById('colorInput').value = this.currentColor;
             this.currentBorderColor = hex.borderColor || this.configManager.get('borderColor');
             document.getElementById('tileBorderColor').value = this.currentBorderColor;
+            this.configManager.set('lineWidth',hex.borderWidth);
+            this.currentBorderWidth = hex.borderWidth || this.configManager.get('lineWidth');
+            document.getElementById('lineWidthInput').value = this.currentBorderWidth;
             this.dataManager.setCategory(hex.category);
             this.dataManager.setNextId(hex.id + 1);
             document.getElementById('categorySelect').value = hex.category;
