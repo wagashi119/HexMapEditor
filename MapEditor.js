@@ -14,6 +14,7 @@ class MapEditor {
         this.currentTool = ToolFactory.createTool('generate', this.dataManager);
         this.currentColor = '#ff0000';
         this.currentBorderColor = '#000000';
+        this.currentBorderWidth = 1;
         this.presets = this.loadPresets();
 
         this._initialize();
@@ -79,6 +80,9 @@ class MapEditor {
             this.currentBorderColor = e.target.value;
             this._drawColorPreview();
         });
+        document.getElementById('lineWidthInput').addEventListener('change', (e) => {
+            this.currentBorderWidth = parseFloat(e.target.value) || 1;
+        });
         document.getElementById('categorySelect').addEventListener('change', (e) => {
             this.dataManager.setCategory(e.target.value);
             document.getElementById('categoryIdInput').value = this.dataManager.nextId;
@@ -109,7 +113,7 @@ class MapEditor {
             this.currentTool.execute(q, r, {
                 color: this.currentColor,
                 borderColor: this.currentBorderColor,
-                borderWidth: this.configManager.get('lineWidth'),
+                borderWidth: this.currentBorderWidth,
                 id: this.dataManager.getNextId(),
                 category: this.dataManager.category
             });
@@ -127,7 +131,6 @@ class MapEditor {
             document.getElementById('colorInput').value = this.currentColor;
             this.currentBorderColor = hex.borderColor || this.configManager.get('borderColor');
             document.getElementById('tileBorderColor').value = this.currentBorderColor;
-            this.configManager.set('lineWidth',hex.borderWidth);
             this.currentBorderWidth = hex.borderWidth || this.configManager.get('lineWidth');
             document.getElementById('lineWidthInput').value = this.currentBorderWidth;
             this.dataManager.setCategory(hex.category);
@@ -354,6 +357,7 @@ class MapEditor {
                 category: this.dataManager.category,
                 currentColor: this.currentColor,
                 currentBorderColor: this.currentBorderColor,
+                currentBorderWidth: this.currentBorderWidth,
                 nextId: this.dataManager.nextId
             },
             hexes: this.dataManager.getAllHexes()
@@ -383,25 +387,21 @@ class MapEditor {
         }
 
         // ヘックスデータを復元
-        const newHexes = {};
+        this.dataManager.clear();
         let maxId = 0;
+        console.log('Importing hexes:', data.hexes);
         data.hexes.forEach((hex) => {
             if (typeof hex.q !== 'number' || typeof hex.r !== 'number') {
                 throw new Error('hexes の各要素には数値の q, r が必要です。');
             }
             const key = `${hex.q},${hex.r}`;
-            newHexes[key] = {
-                color: hex.color || '#ff0000',
-                borderColor: hex.borderColor || this.configManager.get('borderColor'),
-                id: typeof hex.id === 'number' ? hex.id : 1,
-                category: hex.category || 'A'
-            };
+            //console.log(`Importing hex at (${hex.q}, ${hex.r}) with data:`, hex);
+            this.dataManager.addHex(hex.q, hex.r, Hex.convertToData(hex));
             if (typeof hex.id === 'number' && hex.id > maxId) {
                 maxId = hex.id;
             }
         });
 
-        this.dataManager.hexes = newHexes;
         this.dataManager.nextId = Math.max(maxId + 1, 1);
         document.getElementById('categoryIdInput').value = this.dataManager.nextId;
 
@@ -433,6 +433,10 @@ class MapEditor {
             if (data.settings.currentBorderColor) {
                 this.currentBorderColor = data.settings.currentBorderColor;
                 document.getElementById('tileBorderColor').value = this.currentBorderColor;
+            }
+            if (data.settings.currentBorderWidth) {
+                this.currentBorderWidth = data.settings.currentBorderWidth;
+                document.getElementById('lineWidthInput').value = this.currentBorderWidth;
             }
         }
         
