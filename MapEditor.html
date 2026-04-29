@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexMap Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #canvasContainer {
+            position: relative;
+            display: inline-block;
+            width: 1185px;
+            height: 910px;
+            border: 2px solid #000;
+            background-color: #fff;
+        }
+        #canvas, #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #canvas {
+            z-index: 1;
+        }
+        #overlayCanvas {
+            z-index: 2;
+            pointer-events: none;
+        }
+        .control-group {
+            margin-bottom: 10px;
+        }
+        button {
+            margin-right: 10px;
+            padding: 5px 10px;
+        }
+        .settings {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border: 1px solid #aaaaaa;
+            border-radius: 5px;
+        }
+        .tools {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #e0e0e0e9;
+            border-radius: 5px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        .line {
+            width: 3em;
+        }
+        .tools input, .tools select {
+            background-color: rgb(230, 230, 230);
+            border: 0.5px solid #aaaaaa;
+        }
+        input[type="color"] {
+            background-color: transparent;
+            border: none;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Hex Map Editor</h1>
+    <pre>マップをクリックしてタイルを生成/削除します。設定を変更したら「設定を適用」ボタンを押してください。</pre>
+    <pre>タイルのナンバーは、A1, A2, ... Z26 のように、アルファベットと数字の組み合わせで表されます。</pre>
+    <div class="tools">
+        <div>
+            <label>ツール: </label>
+            <select id="toolSelect">
+                <option value="generate">生成</option>
+                <option value="delete">削除</option>
+            </select>
+        </div>
+        <div>
+            <canvas id="colorPreview" width="40" height="40" style=" display: inline-block; margin-right: 10px; vertical-align: middle;"></canvas>
+            <label style="color: red;">◆:<input type="color" id="colorInput" value="#ff0000" alpha="1"></label>
+            <label>◇:<input type="color" id="tileBorderColor" value="#000000" alpha="1"></label>
+            <label>幅:<input type="number" class="line" id="lineWidthInput" min="1" value="1"></label>
+            <label>　ナンバー:
+                <select id="categorySelect">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="K">K</option>
+                    <option value="L">L</option>
+                    <option value="M">M</option>
+                    <option value="N">N</option>
+                    <option value="O">O</option>
+                    <option value="P">P</option>
+                    <option value="Q">Q</option>
+                    <option value="R">R</option>
+                    <option value="S">S</option>
+                    <option value="T">T</option>
+                    <option value="U">U</option>
+                    <option value="V">V</option>
+                    <option value="W">W</option>
+                    <option value="X">X</option>
+                    <option value="Y">Y</option>
+                    <option value="Z">Z</option>
+                </select>
+                <input type="number" style="width: 3em" id="categoryIdInput" min="1" value="1">
+            </label>
+        </div>
+        <label>　　　　 
+            <select id="presetSelect">
+                <option value="">プリセットを選択</option>
+            </select>
+            <input type="text" id="presetNameInput" placeholder="プリセット名" style="width: 100px;">
+            <button id="addPresetBtn">追加</button>
+            <button id="deletePresetBtn">削除</button>
+        </label>
+    </div>
+    <div id="canvasContainer">
+        <canvas id="canvas" width="1115" height="862"></canvas>
+        <canvas id="overlayCanvas" width="1115" height="862"></canvas>
+    </div>
+    <details open="true" class="settings">
+        <summary> 設定 </summary>
+        <div class="control-group">
+            <label>タイル番号:<input type="checkbox" id="showTileNumbers" checked="true"></label>
+            <label>番号色:<input type="color" id="tileNumberColor" value="#000000"></label>
+            <label>
+                align:
+                <select id="tileNumberAlign">
+                    <option value="center">中央</option>
+                    <option value="left">左</option>
+                    <option value="right">右</option>
+                </select>
+            </label>
+        </div>
+        <div class="control-group">
+            <label>タイルグリッド:<input type="checkbox" id="showGrid" checked="true"></label>
+            <label>枠線:<input type="color" id="borderColor" value="#000000" alpha="1"></label>
+            <label>幅:<input type="number" class="line" id="borderWidth" min="0" value="1"></label>
+        </div>
+        <div class="control-group">
+            <label>強調間隔:<input type="number" id="highlightInterval" min="1" value="5"></label>
+            <label>強調色:<input type="color" id="highlightColor" value="#000000" alpha="1"></label>
+            <label>幅:<input type="number" class="line" id="highlightWidth" min="0" value="2"></label>
+        </div>
+        <div class="control-group">
+            <label>タイル　　　</label>
+            <label>幅: <input type="number" id="tileCols" min="1" value="26"></label>
+            <label>高さ: <input type="number" id="tileRows" min="1" value="17"></label>
+        </div>
+        <div class="control-group">
+            <label>余白　</label>
+            <label>横: <input type="number" id="marginWidth" value="0"></label>
+            <label>縦: <input type="number" id="marginHeight" value="0"></label>
+        </div>
+        <div class="control-group">
+            <label>透明度: <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.8"></label>
+        </div>
+        <div class="control-group">
+            <button id="applySettingsBtn">設定を適用</button>
+        </div>
+    </details>
+    <div class="settings">
+        <h3>インポート/エクスポート</h3>
+        <button id="exportBtn">画像出力</button>
+        <button id="exportJsonBtn">JSON出力</button>
+        <button id="importJsonBtn">JSONインポート</button>
+        <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+        <textarea id="jsonPreview" placeholder="JSONデータをここに貼り付けてインポート" rows="10" cols="50"></textarea>
+    </div>
+
+    <script src="EventEmitter.js"></script>
+    <script src="HexCoordinateSystem.js"></script>
+    <script src="DrawConfig.js"></script>
+    <script src="HexDataManager.js"></script>
+    <script src="HexRenderer.js"></script>
+    <script src="GridDrawHelper.js"></script>
+    <script src="ToolStrategy.js"></script>
+    <script src="ConfigManager.js"></script>
+    <script src="MapEditor.js"></script>
+    <script>
+        const coordinateSystem = new HexCoordinateSystem(30);
+        const configManager = new ConfigManager();
+        const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager, coordinateSystem);
+
+        // JSONインポート機能
+        function importJSON(text) {
+            try {
+                mapEditor.importJSON(text);
+            } catch (error) {
+                alert('JSON 読み込みエラー: ' + error.message);
+            }
+        }
+
+        function importJSONFromFile(file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    importJSON(reader.result);
+                } catch (error) {
+                    alert('JSON 読み込みエラー: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        document.getElementById('importJsonBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('jsonFileInput');
+            const previewText = document.getElementById('jsonPreview').value.trim();
+            if (!previewText) {
+                document.getElementById('jsonFileInput').click();
+                return;
+            }
+            try {
+                importJSON(previewText);
+            } catch (error) {
+                alert('JSON 読み込みエラー: ' + error.message);
+            }
+        });
+
+        document.getElementById('jsonFileInput').addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                importJSONFromFile(event.target.files[0]);
+            }
+        });
+        mapEditor._applySettings();
+    </script>
+</body>
+</html>

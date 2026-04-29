@@ -1,0 +1,206 @@
+class ConfigManager extends EventEmitter {
+    constructor(domPrefix = '') {
+        super();
+        this.domPrefix = domPrefix;
+        this.registeredFields = {}; // フィールド登録情報
+        
+        // デフォルト設定（明示的）
+        this.config = {
+            // タイル番号表示
+            showTileNumbers: true,
+            tileNumberColor: '#000000',
+            tileNumberAlign: 'center',
+            
+            // グリッド表示
+            showGrid: true,
+            borderColor: '#000000',
+            borderWidth: 1,           // NEW: グリッド枠線幅
+            
+            // ハイライト表示
+            highlightInterval: 5,
+            highlightColor: '#000000',
+            highlightWidth: 2,        // NEW: ハイライト枠線幅
+            
+            // タイル描画
+            lineWidth: 1,             // NEW: タイル枠線幅
+            
+            // キャンバス設定
+            tileCols: 26,
+            tileRows: 17,
+            marginWidth: 0,
+            marginHeight: 0,
+            opacity: 0.8
+        };
+    }
+
+    get(key) {
+        return this.config[key];
+    }
+
+    set(key, value) {
+        if (this.config[key] !== value) {
+            this.config[key] = value;
+            this.notify('configChanged', {key, value});
+        }
+    }
+
+    /**
+     * DOM フィールドを設定に登録し、自動バインディングを設定
+     * @param {string} domId - DOM 要素の ID
+     * @param {string} configKey - 設定キー（省略時は domId をキャメルケース化）
+     * @param {string} type - 入力タイプ ('text', 'number', 'checkbox', 'color', 'range')
+     */
+    registerField(domId, configKey = null, type = null) {
+        const element = document.getElementById(domId);
+        if (!element) {
+            console.warn(`ConfigManager: Element not found for ID: ${domId}`);
+            return;
+        }
+
+        // configKey が指定されない場合、domId をキャメルケース化
+        const key = configKey || this._toCamelCase(domId);
+        const fieldType = type || element.getAttribute('type') || element.tagName.toLowerCase();
+
+        // 登録情報を保存
+        this.registeredFields[domId] = {key, type: fieldType};
+
+        // DOM から値を読み込み
+        this._loadFieldValue(element, key, fieldType);
+
+        // DOM 変更リスナーを設定
+        element.addEventListener('change', () => {
+            this._loadFieldValue(element, key, fieldType);
+            this.applyToDOM({[key]: this.config[key]});
+        });
+        
+        // リアルタイム更新（range/number）
+        if (fieldType === 'range' || fieldType === 'number') {
+            element.addEventListener('input', () => {
+                this._loadFieldValue(element, key, fieldType);
+            });
+        }
+    }
+
+    /**
+     * DOM 要素から値を読み込んで config に反映
+     * @private
+     */
+    _loadFieldValue(element, key, fieldType) {
+        let value;
+        if (fieldType === 'checkbox') {
+            value = element.checked;
+        } else if (fieldType === 'number' || fieldType === 'range') {
+            value = parseFloat(element.value) || 0;
+        } else if (fieldType === 'color') {
+            value = element.value;
+        } else {
+            value = element.value;
+        }
+        this.set(key, value);
+    }
+
+    /**
+     * キャメルケースに変換（snakeCase/kebab-case → camelCase）
+     * @private
+     */
+    _toCamelCase(str) {
+        return str.replace(/[-_]([a-z])/g, (match, letter) => letter.toUpperCase());
+    }
+
+    /**
+     * 複数フィールドを一括登録
+     * @param {Array} fields - [{domId, configKey, type}, ...] の配列
+     */
+    registerFields(fields) {
+        fields.forEach(({domId, configKey, type}) => {
+            this.registerField(domId, configKey, type);
+        });
+    }
+
+    /**
+     * 旧メソッド: DOM から複数フィールドを読み込み（後方互換性）
+     * @deprecated registerField を使用してください
+     */
+    loadFromDOM(elementIds) {
+        elementIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                const type = element.type;
+                const value = type === 'checkbox' ? element.checked :
+                              type === 'number' || type === 'range' ?
+                              parseFloat(element.value) : element.value;
+                const key = this._toCamelCase(id);
+                this.config[key] = value;
+            }
+        });
+    }
+
+    /**
+     * 設定を DOM に適用
+     */
+    applyToDOM(config) {
+        Object.entries(config).forEach(([key, value]) => {
+            // 登録済みフィールドから DOM ID を探す
+            let domId = null;
+            for (const [id, info] of Object.entries(this.registeredFields)) {
+                if (info.key === key) {
+                    domId = id;
+                    break;
+                }
+            }
+
+            // 登録されていない場合は key をそのまま使用
+            if (!domId) {
+                domId = key;
+            }
+
+            const element = document.getElementById(domId);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = value;
+                } else {
+                    element.value = value;
+                }
+            }
+        });
+    }
+
+    /**
+     * 旧メソッド: リスナー登録（EventEmitter に移行）
+     * @deprecated super.subscribe() を使用してください
+     */
+    subscribe(listener) {
+        super.subscribe(listener);
+    }
+
+    /**
+     * 旧メソッド: リスナー通知（EventEmitter に移行）
+     * @deprecated super.notify() を使用してください
+     */
+    notify(event, data) {
+        super.notify(event, data);
+    }
+
+    /**
+     * 設定をエクスポート
+     */
+    export() {
+        return JSON.parse(JSON.stringify(this.config));
+    }
+
+    /**
+     * 設定をインポート（不足フィールドはデフォルト値で補完）
+     */
+    import(config) {
+        // デフォルト値と入力を merge
+        const merged = {
+            ...this.config,
+            ...config
+        };
+        Object.assign(this.config, merged);
+        this.notify('configImported', this.config);
+        
+        // DOM に反映
+        this.applyToDOM(this.config);
+    }
+}
