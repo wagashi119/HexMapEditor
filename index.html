@@ -31,6 +31,14 @@
             z-index: 2;
             pointer-events: none;
         }
+        #colorPreview {
+            display: inline-block;
+            margin-right: 10px;
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border: 1px solid #000;
+        }
         .control-group {
             margin-bottom: 10px;
         }
@@ -50,6 +58,7 @@
             padding: 10px;
             background-color: #e0e0e0e9;
             border-radius: 5px;
+            border: #000000d2 1px solid;
             position: fixed;
             top: 20px;
             left: 20px;
@@ -58,15 +67,15 @@
         .line {
             width: 3em;
         }
-        .tools input, .tools select {
-            background-color: rgb(230, 230, 230);
-            border: 0.5px solid #aaaaaa;
+        .tools input, .tools select, .tools button {
+            background-color: rgb(253, 253, 253);
+            border: 0px #898989;
         }
+
         input[type="color"] {
             background-color: transparent;
             border: none;
         }
-        
     </style>
 </head>
 <body>
@@ -74,58 +83,62 @@
     <pre>マップをクリックしてタイルを生成/削除します。設定を変更したら「設定を適用」ボタンを押してください。</pre>
     <pre>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</pre>
     <div class="tools">
-        <div>
             <label>ツール: </label>
             <select id="toolSelect">
                 <option value="generate">生成</option>
                 <option value="delete">削除</option>
             </select>
+        <div style="display: flex;">
+            <canvas id="colorPreview" width="60" height="60"></canvas>
+            <div, style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <label id="colorLabel" style="color: red; font-size: 20px;">◆<input type="color" id="colorInput" value="#ff0000" alpha="1"></label>
+                    <label id="borderColorLabel" style="color: black; font-size: 20px;">◇<input type="color" id="tileBorderColor" value="#000000" alpha="1"></label>
+                    <label>幅:<input type="number" class="line" id="lineWidthInput" min="1" value="1"></label>
+                    <label>　ナンバー:
+                    <select id="categorySelect">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="I">I</option>
+                        <option value="J">J</option>
+                        <option value="K">K</option>
+                        <option value="L">L</option>
+                        <option value="M">M</option>
+                        <option value="N">N</option>
+                        <option value="O">O</option>
+                        <option value="P">P</option>
+                        <option value="Q">Q</option>
+                        <option value="R">R</option>
+                        <option value="S">S</option>
+                        <option value="T">T</option>
+                        <option value="U">U</option>
+                        <option value="V">V</option>
+                        <option value="W">W</option>
+                        <option value="X">X</option>
+                        <option value="Y">Y</option>
+                        <option value="Z">Z</option>
+                    </select>
+                    <input type="number" style="width: 3em" id="categoryIdInput" min="1" value="1">
+                </label>
+                </div>
+                <div>
+                <label> 
+                    <select id="presetSelect">
+                        <option value="">プリセットを選択</option>
+                    </select>
+                    <input type="text" id="presetNameInput" placeholder="プリセット名" style="width: 100px;">
+                    <button id="addPresetBtn">追加</button>
+                    <button id="deletePresetBtn">削除</button>
+                </label>
+            </div>
+            </div>
         </div>
-        <div>
-            <canvas id="colorPreview" width="40" height="40" style=" display: inline-block; margin-right: 10px; vertical-align: middle;"></canvas>
-            <label style="color: red;">◆:<input type="color" id="colorInput" value="#ff0000" alpha="1"></label>
-            <label>◇:<input type="color" id="tileBorderColor" value="#000000" alpha="1"></label>
-            <label>幅:<input type="number" class="line" id="lineWidthInput" min="1" value="1"></label>
-            <label>　ナンバー:
-                <select id="categorySelect">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="G">G</option>
-                    <option value="H">H</option>
-                    <option value="I">I</option>
-                    <option value="J">J</option>
-                    <option value="K">K</option>
-                    <option value="L">L</option>
-                    <option value="M">M</option>
-                    <option value="N">N</option>
-                    <option value="O">O</option>
-                    <option value="P">P</option>
-                    <option value="Q">Q</option>
-                    <option value="R">R</option>
-                    <option value="S">S</option>
-                    <option value="T">T</option>
-                    <option value="U">U</option>
-                    <option value="V">V</option>
-                    <option value="W">W</option>
-                    <option value="X">X</option>
-                    <option value="Y">Y</option>
-                    <option value="Z">Z</option>
-                </select>
-                <input type="number" style="width: 3em" id="categoryIdInput" min="1" value="1">
-            </label>
-        </div>
-        <label>　　　　 
-            <select id="presetSelect">
-                <option value="">プリセットを選択</option>
-            </select>
-            <input type="text" id="presetNameInput" placeholder="プリセット名" style="width: 100px;">
-            <button id="addPresetBtn">追加</button>
-            <button id="deletePresetBtn">削除</button>
-        </label>
     </div>
     <div id="canvasContainer">
         <canvas id="canvas" width="1115" height="862"></canvas>
@@ -155,7 +168,7 @@
             <label>強調色:<input type="color" id="highlightColor" value="#000000" alpha="1"></label>
             <label>幅:<input type="number" class="line" id="highlightWidth" min="0" value="2"></label>
         </div>
-        <div class="control-group" style="border: 1px solid #7a7a7a; padding: 10px; border-radius: 5px;">
+        <div class="control-group" style="border: 1px solid #7a7a7a; padding: 10px; border-radius: 5px; background-color: #e7e7e7;">
             <div>
                 <label>数　　</label>
                 <label>x: <input type="number" id="tileCols" min="1" value="26"></label>

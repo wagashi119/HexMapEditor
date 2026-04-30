@@ -116,6 +116,8 @@ class MapEditor {
             if (event === 'configChanged') {
                 this._drawColorPreview();
             }
+            document.getElementById('colorLabel').style.color = this.currentColor;
+            document.getElementById('borderColorLabel').style.color = this.currentBorderColor;
         });
         
         this.canvas.addEventListener('mousedown', (e) => this._handleCanvasClick(e));
@@ -207,6 +209,7 @@ class MapEditor {
         this._drawGrid();
         this._drawHexes();
         this._drawHighlights();
+        this._drawColorPreview();
     }
 
     _clearCanvas() {
@@ -303,10 +306,11 @@ class MapEditor {
 
         // プレビューキャンバスに描画
         const ctx = canvas.getContext('2d');
-        const path = this.renderer._createHexPath(20, 20, 20);
-        ctx.clearRect(0, 0, 40, 40);
+        ctx.globalAlpha = configManager.get('opacity');
+        const path = this.renderer._createHexPath(30, 30, 30);
+        ctx.clearRect(0, 0, 60, 60);
         ctx.fillStyle = this.currentColor;
-        ctx.fill(path);
+        ctx.fillRect(0, 0, 60, 60);
         ctx.strokeStyle = this.currentBorderColor;
         ctx.lineWidth = this.currentBorderWidth;
         ctx.stroke(path);
