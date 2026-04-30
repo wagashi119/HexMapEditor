@@ -1,4 +1,23 @@
 class MapEditor {
+    get currentColor() {
+        return this.toolConfig.get('tileColor');
+    }
+    set currentColor(value) {        
+        this.toolConfig.set('tileColor', value);
+    }
+    get currentBorderColor() {
+        return this.toolConfig.get('BorderColor');
+    }
+    set currentBorderColor(value) {
+        this.toolConfig.set('BorderColor', value);
+    }
+    get currentBorderWidth() {
+        return this.toolConfig.get('BorderWidth');
+    }
+    set currentBorderWidth(value) {
+        this.toolConfig.set('BorderWidth', value);
+    }
+
     constructor(canvasId, overlayCanvasId, configManager, coordinateSystem) {
         this.canvas = document.getElementById(canvasId);
         this.overlayCanvas = document.getElementById(overlayCanvasId);
@@ -7,15 +26,14 @@ class MapEditor {
 
         this.coordinateSystem = coordinateSystem;
         this.configManager = configManager;
+        this.toolConfig = new ConfigManager();
         this.dataManager = new HexDataManager();
         this.renderer = new HexRenderer(coordinateSystem);
         this.gridHelper = new GridDrawHelper(coordinateSystem, this.renderer);
 
         this.currentTool = ToolFactory.createTool('generate', this.dataManager);
-        this.currentColor = '#ff0000';
-        this.currentBorderColor = '#000000';
-        this.currentBorderWidth = 1;
         this.presets = this.loadPresets();
+
 
         this._initialize();
     }
@@ -27,7 +45,31 @@ class MapEditor {
         this._attachEventListeners();
         this.dataManager.subscribe((event, data) => this._onDataChanged(event, data));
         this.configManager.subscribe((event, data) => this._onConfigChanged(event, data));
-        this.configManager.applyToDOM(this.configManager.config);
+        this.configManager.applyToDOM(
+            config => ({
+                // タイル番号表示
+                showTileNumbers: true,
+                tileNumberColor: '#000000',
+                tileNumberAlign: 'center',
+                
+                // グリッド表示
+                showGrid: true,
+                borderColor: '#000000',
+                borderWidth: 1,           // NEW: グリッド枠線幅
+                
+                // ハイライト表示
+                highlightInterval: 5,
+                highlightColor: '#000000',
+                highlightWidth: 2,        // NEW: ハイライト枠線幅
+                
+                // キャンバス設定
+                tileCols: 26,
+                tileRows: 17,
+                marginWidth: 0,
+                marginHeight: 0,
+                opacity: 0.8
+            })
+        );
         this._drawColorPreview();
         this.updatePresetDropdown();
         this.render();
@@ -55,9 +97,6 @@ class MapEditor {
             { domId: 'highlightColor', configKey: 'highlightColor', type: 'color' },
             { domId: 'highlightWidth', configKey: 'highlightWidth', type: 'number' },
             
-            // タイル描画（新規）
-            { domId: 'lineWidthInput', configKey: 'lineWidth', type: 'number' },
-            
             // キャンバス設定
             { domId: 'tileCols', configKey: 'tileCols', type: 'number' },
             { domId: 'tileRows', configKey: 'tileRows', type: 'number' },
@@ -65,23 +104,17 @@ class MapEditor {
             { domId: 'marginHeight', configKey: 'marginHeight', type: 'number' },
             { domId: 'opacity', configKey: 'opacity', type: 'range' }
         ]);
+        this.toolConfig.registerFields([
+            { domId: 'colorInput', configKey: 'tileColor', type: 'color' },
+            { domId: 'tileBorderColor', configKey: 'BorderColor', type: 'color' },
+            { domId: 'lineWidthInput', configKey: 'BorderWidth', type: 'number' }
+        ]);
     }
 
     _attachEventListeners() {
         this.canvas.addEventListener('mousedown', (e) => this._handleCanvasClick(e));
         document.getElementById('toolSelect').addEventListener('change', (e) => {
             this.setTool(e.target.value);
-        });
-        document.getElementById('colorInput').addEventListener('change', (e) => {
-            this.currentColor = e.target.value;
-            this._drawColorPreview();
-        });
-        document.getElementById('tileBorderColor').addEventListener('change', (e) => {
-            this.currentBorderColor = e.target.value;
-            this._drawColorPreview();
-        });
-        document.getElementById('lineWidthInput').addEventListener('change', (e) => {
-            this.currentBorderWidth = parseFloat(e.target.value) || 1;
         });
         document.getElementById('categorySelect').addEventListener('change', (e) => {
             this.dataManager.setCategory(e.target.value);
@@ -105,7 +138,22 @@ class MapEditor {
         const {q, r} = this.coordinateSystem.toHex(x, y, this.canvas.width, this.canvas.height);
 
         if (e.button === 1) {
+            // webの既存操作はキャンセル
+            e.preventDefault();
             this._eyedropper(q, r);
+            return;
+        }
+        if (e.button === 2) {
+            //console.warn('右クリックは現在サポートされていません。');
+            e.preventDefault();
+
+            ToolFactory.createTool('delete', this.dataManager).execute(q, r, {
+                color: this.currentColor,
+                borderColor: this.currentBorderColor,
+                borderWidth: this.currentBorderWidth,
+                id: this.dataManager.getNextId(),
+                category: this.dataManager.category
+            });
             return;
         }
 
@@ -127,16 +175,16 @@ class MapEditor {
     _eyedropper(q, r) {
         const hex = this.dataManager.getHex(q, r);
         if (hex) {
+            //console.log(`Eyedropper: Picked hex at (${q}, ${r}):`, hex);
+
             this.currentColor = hex.color;
-            document.getElementById('colorInput').value = this.currentColor;
-            this.currentBorderColor = hex.borderColor || this.configManager.get('borderColor');
-            document.getElementById('tileBorderColor').value = this.currentBorderColor;
-            this.currentBorderWidth = hex.borderWidth || this.configManager.get('lineWidth');
-            document.getElementById('lineWidthInput').value = this.currentBorderWidth;
+            this.currentBorderColor = hex.borderColor || '#000000';
+            this.currentBorderWidth = hex.borderWidth || 1;
             this.dataManager.setCategory(hex.category);
             this.dataManager.setNextId(hex.id + 1);
             document.getElementById('categorySelect').value = hex.category;
             document.getElementById('categoryIdInput').value = this.dataManager.nextId;
+            this._drawColorPreview();
         }
     }
 
@@ -182,7 +230,6 @@ class MapEditor {
      */
     _drawHexes() {
         const defaultBorderColor = this.configManager.get('borderColor');
-        const defaultLineWidth = this.configManager.get('lineWidth');
         const numberColor = this.configManager.get('tileNumberColor');
         const numberAlign = this.configManager.get('tileNumberAlign');
         const showNumbers = this.configManager.get('showTileNumbers');
@@ -191,7 +238,7 @@ class MapEditor {
         this.dataManager.getAllHexes().forEach(hex => {
             // hex 固有の値、またはデフォルト値を使用
             const hexBorderColor = hex.borderColor || defaultBorderColor;
-            const hexLineWidth = hex.borderWidth !== undefined ? hex.borderWidth : defaultLineWidth;
+            const hexLineWidth = hex.borderWidth !== undefined ? hex.borderWidth : 1;
             
             // DrawConfig を使用した統一的な描画
             const drawConfig = new DrawConfig({
@@ -255,7 +302,7 @@ class MapEditor {
         ctx.fillStyle = this.currentColor;
         ctx.fill(path);
         ctx.strokeStyle = this.currentBorderColor;
-        ctx.lineWidth = this.configManager.get('lineWidth');
+        ctx.lineWidth = this.currentBorderWidth;
         ctx.stroke(path);
     }
 
@@ -426,18 +473,9 @@ class MapEditor {
             if (typeof data.settings.nextId === 'number') {
                 this.dataManager.setNextId(data.settings.nextId);
             }
-            if (data.settings.currentColor) {
-                this.currentColor = data.settings.currentColor;
-                document.getElementById('colorInput').value = this.currentColor;
-            }
-            if (data.settings.currentBorderColor) {
-                this.currentBorderColor = data.settings.currentBorderColor;
-                document.getElementById('tileBorderColor').value = this.currentBorderColor;
-            }
-            if (data.settings.currentBorderWidth) {
-                this.currentBorderWidth = data.settings.currentBorderWidth;
-                document.getElementById('lineWidthInput').value = this.currentBorderWidth;
-            }
+            if (data.settings.currentColor) this.currentColor = data.settings.currentColor;
+            if (data.settings.currentBorderColor) this.currentBorderColor = data.settings.currentBorderColor;
+            if (data.settings.currentBorderWidth) this.currentBorderWidth = data.settings.currentBorderWidth;
         }
         
         this._drawColorPreview();

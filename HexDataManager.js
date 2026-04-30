@@ -16,7 +16,7 @@ class Hex {
     }
 
     GetID() {
-        return this.category+"-"+this.id;
+        return `${this.category}-${this.id}`;
     }
 
     static convertToData(data) {

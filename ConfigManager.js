@@ -3,33 +3,8 @@ class ConfigManager extends EventEmitter {
         super();
         this.domPrefix = domPrefix;
         this.registeredFields = {}; // フィールド登録情報
-        
-        // デフォルト設定（明示的）
+
         this.config = {
-            // タイル番号表示
-            showTileNumbers: true,
-            tileNumberColor: '#000000',
-            tileNumberAlign: 'center',
-            
-            // グリッド表示
-            showGrid: true,
-            borderColor: '#000000',
-            borderWidth: 1,           // NEW: グリッド枠線幅
-            
-            // ハイライト表示
-            highlightInterval: 5,
-            highlightColor: '#000000',
-            highlightWidth: 2,        // NEW: ハイライト枠線幅
-            
-            // タイル描画
-            lineWidth: 1,             // NEW: タイル枠線幅
-            
-            // キャンバス設定
-            tileCols: 26,
-            tileRows: 17,
-            marginWidth: 0,
-            marginHeight: 0,
-            opacity: 0.8
         };
     }
 
@@ -40,6 +15,7 @@ class ConfigManager extends EventEmitter {
     set(key, value) {
         if (this.config[key] !== value) {
             this.config[key] = value;
+            this.registeredFields[key].element.value = value; // DOM にも反映
             this.notify('configChanged', {key, value});
         }
     }
@@ -62,7 +38,7 @@ class ConfigManager extends EventEmitter {
         const fieldType = type || element.getAttribute('type') || element.tagName.toLowerCase();
 
         // 登録情報を保存
-        this.registeredFields[domId] = {key, type: fieldType};
+        this.registeredFields[key] = {domId, element: element, type: fieldType};
 
         // DOM から値を読み込み
         this._loadFieldValue(element, key, fieldType);
@@ -165,21 +141,6 @@ class ConfigManager extends EventEmitter {
         });
     }
 
-    /**
-     * 旧メソッド: リスナー登録（EventEmitter に移行）
-     * @deprecated super.subscribe() を使用してください
-     */
-    subscribe(listener) {
-        super.subscribe(listener);
-    }
-
-    /**
-     * 旧メソッド: リスナー通知（EventEmitter に移行）
-     * @deprecated super.notify() を使用してください
-     */
-    notify(event, data) {
-        super.notify(event, data);
-    }
 
     /**
      * 設定をエクスポート
