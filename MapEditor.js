@@ -112,6 +112,12 @@ class MapEditor {
     }
 
     _attachEventListeners() {
+        this.toolConfig.subscribe((event, data) => {
+            if (event === 'configChanged') {
+                this._drawColorPreview();
+            }
+        });
+        
         this.canvas.addEventListener('mousedown', (e) => this._handleCanvasClick(e));
         document.getElementById('toolSelect').addEventListener('change', (e) => {
             this.setTool(e.target.value);
