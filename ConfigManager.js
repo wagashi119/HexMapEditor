@@ -116,28 +116,7 @@ class ConfigManager extends EventEmitter {
      */
     applyToDOM(config) {
         Object.entries(config).forEach(([key, value]) => {
-            // 登録済みフィールドから DOM ID を探す
-            let domId = null;
-            for (const [id, info] of Object.entries(this.registeredFields)) {
-                if (info.key === key) {
-                    domId = id;
-                    break;
-                }
-            }
-
-            // 登録されていない場合は key をそのまま使用
-            if (!domId) {
-                domId = key;
-            }
-
-            const element = document.getElementById(domId);
-            if (element) {
-                if (element.type === 'checkbox') {
-                    element.checked = value;
-                } else {
-                    element.value = value;
-                }
-            }
+            this.set(key, value);
         });
     }
 

@@ -70,6 +70,11 @@ class MapEditor {
                 opacity: 0.8
             })
         );
+        this.toolConfig.applyToDOM({
+            tileColor: '#506ab9',
+            BorderColor: '#7c84fe',
+            BorderWidth: 1
+        });
         this._drawColorPreview();
         this.updatePresetDropdown();
         this.render();
