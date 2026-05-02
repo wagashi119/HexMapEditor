@@ -225,7 +225,7 @@
         function reMaindCheck() {
             const beforeDate = localStorage.getItem('date') || 0;
             //console.log('date:' + beforeDate);
-            const reOpenTime = 60000*24; // 一日分
+            const reOpenTime = 86400000; // 一日分
             //console.log(reOpenTime +"<"+ Date.now() + "-" + beforeDate);
             const reMaind = reOpenTime < Date.now() - beforeDate;
 
