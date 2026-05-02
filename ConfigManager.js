@@ -9,6 +9,10 @@ class ConfigManager extends EventEmitter {
     }
 
     get(key) {
+        if (!(key in this.config)) {
+            console.warn(`ConfigManager: Key "${key}" not found in config.`);
+            return undefined;
+        }
         return this.config[key];
     }
 

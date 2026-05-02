@@ -212,12 +212,15 @@ class MapEditor {
             
             const { width, height } = HexCoordinateSystem.tileToCanvasSize(this.configManager.get('tileCols'), this.configManager.get('tileRows'));
             const settings = document.getElementById('sizeSetting');
+            const btn = document.getElementById('applySettingsBtn');
             // 元の設定に戻ったら背景色も戻す
             if (width === this.canvas.width && height === this.canvas.height && HexCoordinateSystem.withOffset === this.configManager.get('marginWidth') && HexCoordinateSystem.heightOffset === this.configManager.get('marginHeight')) {
                 settings.style.backgroundColor = '#e7e7e7';
+                btn.style.backgroundColor = 'rgb(240, 240, 240)';
 
             } else {
                 settings.style.backgroundColor = '#e6cfcf';
+                btn.style.backgroundColor = '#ffffff';
             }
         }
     }
@@ -352,6 +355,7 @@ class MapEditor {
 
         // 表示を元に戻す
         document.getElementById('sizeSetting').style.backgroundColor = '#e7e7e7';
+        document.getElementById('applySettingsBtn').style.backgroundColor = 'rgb(240, 240, 240)';
     }
 
     /**
