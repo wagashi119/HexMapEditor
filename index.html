@@ -220,19 +220,31 @@
     <script>
         const configManager = new ConfigManager();
         const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
+        
+        // 互換性を保つ処理
+        function versionCheck() {
+            const beforePresets = localStorage.getItem('colorPresets');
+            if (beforePresets) {
+                localStorage.setItem("hexMap-colorPresets", beforePresets);
+                localStorage.removeItem("colorPresets")
+            }
+        }
 
         // 前回のセッションからリマインドが必要なほど経過しているか?
         function reMaindCheck() {
-            const beforeDate = localStorage.getItem('date') || 0;
+            const beforeDate = localStorage.getItem('hexMap-date') || 0;
             //console.log('date:' + beforeDate);
             const reOpenTime = 86400000; // 一日分
             //console.log(reOpenTime +"<"+ Date.now() + "-" + beforeDate);
             const reMaind = reOpenTime < Date.now() - beforeDate;
 
-            localStorage.setItem('date', Date.now())
+            localStorage.setItem('hexMap-date', Date.now())
             //console.log(reMaind);
             return reMaind;
         }
+        
+        
+        versionCheck();
         document.getElementById('description').open = reMaindCheck();
 
         // JSONインポート機能

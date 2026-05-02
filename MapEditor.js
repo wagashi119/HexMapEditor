@@ -529,12 +529,12 @@ class MapEditor {
     }
 
     loadPresets() {
-        const stored = localStorage.getItem('colorPresets');
+        let stored = localStorage.getItem('hexMap-colorPresets');
         return stored ? JSON.parse(stored) : [];
     }
 
     savePresets() {
-        localStorage.setItem('colorPresets', JSON.stringify(this.presets));
+        localStorage.setItem('hexMap-colorPresets', JSON.stringify(this.presets));
     }
 
     addPreset(name, hex) {
