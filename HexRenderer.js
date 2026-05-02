@@ -15,8 +15,7 @@ class LineConfig {
 }
 
 class HexRenderer {
-    constructor(coordinateSystem) {
-        this.coordinateSystem = coordinateSystem;
+    constructor() {
         this.hexPathCache = {}; // 六角形パスのキャッシュ
     }
 
@@ -27,7 +26,7 @@ class HexRenderer {
      * @param {number} size - 六角形サイズ（半径）
      * @returns {Path2D} 六角形のパス
      */
-    _createHexPath(pixelX, pixelY, size = this.coordinateSystem.hexSize) {
+    _createHexPath(pixelX, pixelY, size = HexCoordinateSystem.hexSize) {
         const path = new Path2D();
         for (let i = 0; i < 6; i++) {
             const angle = (Math.PI / 3) * i;
@@ -50,7 +49,7 @@ class HexRenderer {
      * @param {number} [lineWidth] - 枠線幅（DrawConfig 非使用時）
      */
     drawHex(context, q, r, colorOrConfig, borderColor = '#000', lineWidth = 1) {
-        const {x, y} = this.coordinateSystem.toPixel(
+        const {x, y} = HexCoordinateSystem.toPixel(
             q, r, context.canvas.width, context.canvas.height
         );
 
@@ -86,7 +85,7 @@ class HexRenderer {
      * @param {number} [lineWidth] - 枠線幅（DrawConfig 非使用時）
      */
     drawHexOutline(context, q, r, colorOrConfig, lineWidth = 1) {
-        const {x, y} = this.coordinateSystem.toPixel(
+        const {x, y} = HexCoordinateSystem.toPixel(
             q, r, context.canvas.width, context.canvas.height
         );
 
@@ -114,7 +113,7 @@ class HexRenderer {
      * @param {string} [align] - テキスト配置（DrawConfig 非使用時）
      */
     drawHexText(context, q, r, text, colorOrConfig, align = 'center') {
-        const {x, y} = this.coordinateSystem.toPixel(
+        const {x, y} = HexCoordinateSystem.toPixel(
             q, r, context.canvas.width, context.canvas.height
         );
 
@@ -139,7 +138,7 @@ class HexRenderer {
      * 旧メソッド: 直接キャンバスにジオメトリを描画（後方互換性）
      * @deprecated drawHex を使用してください
      */
-    _drawHexGeometry(context, x, y, color, borderColor, lineWidth, size = this.coordinateSystem.hexSize) {
+    _drawHexGeometry(context, x, y, color, borderColor, lineWidth, size = HexCoordinateSystem.hexSize) {
         const path = this._createHexPath(x, y, size);
         context.fillStyle = color;
         context.fill(path);

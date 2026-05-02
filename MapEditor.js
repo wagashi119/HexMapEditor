@@ -18,18 +18,17 @@ class MapEditor {
         this.toolConfig.set('BorderWidth', value);
     }
 
-    constructor(canvasId, overlayCanvasId, configManager, coordinateSystem) {
+    constructor(canvasId, overlayCanvasId, configManager) {
         this.canvas = document.getElementById(canvasId);
         this.overlayCanvas = document.getElementById(overlayCanvasId);
         this.ctx = this.canvas.getContext('2d');
         this.overlayCtx = this.overlayCanvas.getContext('2d');
 
-        this.coordinateSystem = coordinateSystem;
         this.configManager = configManager;
         this.toolConfig = new ConfigManager();
         this.dataManager = new HexDataManager();
-        this.renderer = new HexRenderer(coordinateSystem);
-        this.gridHelper = new GridDrawHelper(coordinateSystem, this.renderer);
+        this.renderer = new HexRenderer();
+        this.gridHelper = new GridDrawHelper(this.renderer);
 
         this.currentTool = ToolFactory.createTool('generate', this.dataManager);
         this.presets = this.loadPresets();
@@ -148,7 +147,7 @@ class MapEditor {
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const {q, r} = this.coordinateSystem.toHex(x, y, this.canvas.width, this.canvas.height);
+        const {q, r} = HexCoordinateSystem.toHex(x, y, this.canvas.width, this.canvas.height);
 
         if (e.button === 1) {
             // webの既存操作はキャンセル
@@ -205,8 +204,22 @@ class MapEditor {
         this.render();
     }
 
-    _onConfigChanged() {
+    _onConfigChanged(event, data) {
         this.render();
+
+        // size関連の変更があったら、サイズ設定の背景を変える
+        if (event === 'configChanged' && (data.key === 'tileCols' || data.key === 'tileRows' || data.key === 'marginWidth' || data.key === 'marginHeight')) {
+            
+            const { width, height } = HexCoordinateSystem.tileToCanvasSize(this.configManager.get('tileCols'), this.configManager.get('tileRows'));
+            const settings = document.getElementById('sizeSetting');
+            // 元の設定に戻ったら背景色も戻す
+            if (width === this.canvas.width && height === this.canvas.height && HexCoordinateSystem.withOffset === this.configManager.get('marginWidth') && HexCoordinateSystem.heightOffset === this.configManager.get('marginHeight')) {
+                settings.style.backgroundColor = '#e7e7e7';
+
+            } else {
+                settings.style.backgroundColor = '#e6cfcf';
+            }
+        }
     }
 
     render() {
@@ -328,14 +341,17 @@ class MapEditor {
     _applySettings() {
 
         // マージンを座標システムに反映
-        this.coordinateSystem.withOffset = this.configManager.get('marginWidth');
-        this.coordinateSystem.heightOffset = this.configManager.get('marginHeight');
+        HexCoordinateSystem.withOffset = this.configManager.get('marginWidth');
+        HexCoordinateSystem.heightOffset = this.configManager.get('marginHeight');
 
         // キャンバスサイズを更新
         this._setCanvasSizeByTiles(
             this.configManager.get('tileCols'),
             this.configManager.get('tileRows')
         );
+
+        // 表示を元に戻す
+        document.getElementById('sizeSetting').style.backgroundColor = '#e7e7e7';
     }
 
     /**
@@ -353,17 +369,7 @@ class MapEditor {
      * @private
      */
     _setCanvasSizeByTiles(cols, rows) {
-        const tileCols = typeof cols === 'number' ? cols : this.configManager.get('tileCols');
-        const tileRows = typeof rows === 'number' ? rows : this.configManager.get('tileRows');
-
-        // 最外のタイルのピクセル位置を計算
-        const maxQ = tileCols - 1;
-        const maxR = tileRows - 1;
-        const {x: maxX} = this.coordinateSystem.toPixel(maxQ, 0, 0, 0);
-        const {y: maxY} = this.coordinateSystem.toPixel(0, maxR, 0, 0);
-
-        const width = Math.ceil(maxX + this.coordinateSystem.hexSize);
-        const height = Math.ceil(maxY + this.coordinateSystem.hexSize);
+        const { width, height } = HexCoordinateSystem.tileToCanvasSize(cols, rows);
 
         this.canvas.width = width;
         this.canvas.height = height;

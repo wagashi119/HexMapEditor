@@ -3,8 +3,7 @@
  * MapEditor から描画ロジックを分離
  */
 class GridDrawHelper {
-    constructor(coordinateSystem, renderer) {
-        this.coordinateSystem = coordinateSystem;
+    constructor(renderer) {
         this.renderer = renderer;
     }
 
@@ -19,10 +18,10 @@ class GridDrawHelper {
 
         // グリッドの描画範囲を計算
         const corners = [
-            this.coordinateSystem.toHex(0, 0, context.canvas.width, context.canvas.height),
-            this.coordinateSystem.toHex(context.canvas.width, 0, context.canvas.width, context.canvas.height),
-            this.coordinateSystem.toHex(0, context.canvas.height, context.canvas.width, context.canvas.height),
-            this.coordinateSystem.toHex(context.canvas.width, context.canvas.height, context.canvas.width, context.canvas.height)
+            HexCoordinateSystem.toHex(0, 0, context.canvas.width, context.canvas.height),
+            HexCoordinateSystem.toHex(context.canvas.width, 0, context.canvas.width, context.canvas.height),
+            HexCoordinateSystem.toHex(0, context.canvas.height, context.canvas.width, context.canvas.height),
+            HexCoordinateSystem.toHex(context.canvas.width, context.canvas.height, context.canvas.width, context.canvas.height)
         ];
 
         let minQ = Infinity, maxQ = -Infinity, minR = Infinity, maxR = -Infinity;

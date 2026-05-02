@@ -1,11 +1,12 @@
 class HexCoordinateSystem {
-    constructor(hexSize = 30) {
-        this.hexSize = hexSize;
-        this.heightOffset = 0; // Add some spacing between hexes
-        this.withOffset = 0; // Add some spacing between hexes
+    static hexSize = 30;
+    static heightOffset = 0; 
+    static withOffset = 0;
+
+    constructor() {
     }
 
-    toPixel(q, r, canvasWidth, canvasHeight) {
+    static toPixel(q, r, canvasWidth, canvasHeight) {
         const x = this.hexSize * (3/2 * q) + q*this.withOffset;
         const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r) + r*this.heightOffset;
         return {
@@ -14,7 +15,7 @@ class HexCoordinateSystem {
         };
     }
 
-    toHex(x, y, canvasWidth, canvasHeight) {
+    static toHex(x, y, canvasWidth, canvasHeight) {
         x -= canvasWidth / 2;
         y -= canvasHeight / 2;
 
@@ -28,7 +29,7 @@ class HexCoordinateSystem {
         return this.round(q, r);
     }
 
-    round(q, r) {
+    static round(q, r) {
         const s = -q - r;
         let rq = Math.round(q);
         let rr = Math.round(r);
@@ -47,12 +48,28 @@ class HexCoordinateSystem {
         return {q: rq, r: rr};
     }
 
-    getKey(q, r) {
+    static getKey(q, r) {
         return `${q},${r}`;
     }
 
-    parseKey(key) {
+    static parseKey(key) {
         const [q, r] = key.split(',').map(Number);
         return {q, r};
+    }
+
+    static tileToCanvasSize(tileWidth, tileHeight) {
+        if (typeof tileWidth !== 'number' || typeof tileHeight !== 'number') {
+            throw new Error('tileWidth と tileHeight は数値で指定してください');
+        }
+
+        // 最外のタイルのピクセル位置を計算
+        const maxQ = tileWidth - 1;
+        const maxR = tileHeight - 1;
+        const {x: maxX} = this.toPixel(maxQ, 0, 0, 0);
+        const {y: maxY} = this.toPixel(0, maxR, 0, 0);
+
+        const width = Math.ceil(maxX + this.hexSize);
+        const height = Math.ceil(maxY + this.hexSize);
+        return { width, height };
     }
 }
