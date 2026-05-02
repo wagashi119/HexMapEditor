@@ -218,9 +218,6 @@
     <script src="ConfigManager.js"></script>
     <script src="MapEditor.js"></script>
     <script>
-        const configManager = new ConfigManager();
-        const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
-        
         // 互換性を保つ処理
         function versionCheck() {
             const beforePresets = localStorage.getItem('colorPresets');
@@ -242,10 +239,6 @@
             //console.log(reMaind);
             return reMaind;
         }
-        
-        
-        versionCheck();
-        document.getElementById('description').open = reMaindCheck();
 
         // JSONインポート機能
         function importJSON(text) {
@@ -287,6 +280,13 @@
                 importJSONFromFile(event.target.files[0]);
             }
         });
+
+
+        versionCheck();
+        document.getElementById('description').open = reMaindCheck();
+
+        const configManager = new ConfigManager();
+        const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
         mapEditor._applySettings();
 
 
