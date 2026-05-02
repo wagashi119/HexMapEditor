@@ -88,7 +88,7 @@
     <h1>Hex Map Editor</h1>
     <p></p>
     <br>
-    <details>
+    <details id="description">
         <summary>操作方法</summary>
         <h4>左クリックでタイルを生成、右クリックで削除します。</h4>
         <h4>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</h4>
@@ -220,6 +220,20 @@
     <script>
         const configManager = new ConfigManager();
         const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
+
+        // 前回のセッションからリマインドが必要なほど経過しているか?
+        function reMaindCheck() {
+            const beforeDate = localStorage.getItem('date') || 0;
+            //console.log('date:' + beforeDate);
+            const reOpenTime = 60000*24; // 一日分
+            //console.log(reOpenTime +"<"+ Date.now() + "-" + beforeDate);
+            const reMaind = reOpenTime < Date.now() - beforeDate;
+
+            localStorage.setItem('date', Date.now())
+            //console.log(reMaind);
+            return reMaind;
+        }
+        document.getElementById('description').open = reMaindCheck();
 
         // JSONインポート機能
         function importJSON(text) {
