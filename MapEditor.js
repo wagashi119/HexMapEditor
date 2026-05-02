@@ -131,9 +131,11 @@ class MapEditor {
         document.getElementById('categorySelect').addEventListener('change', (e) => {
             this.dataManager.setCategory(e.target.value);
             document.getElementById('categoryIdInput').value = this.dataManager.nextId;
+            this._drawColorPreview();
         });
         document.getElementById('categoryIdInput').addEventListener('change', (e) => {
             this.dataManager.setNextId(parseInt(e.target.value, 10) || 1);
+            this._drawColorPreview();
         });
         document.getElementById('exportBtn').addEventListener('click', () => this._exportImage());
         document.getElementById('exportJsonBtn').addEventListener('click', () => this._exportJSON());
@@ -260,8 +262,6 @@ class MapEditor {
      */
     _drawHexes() {
         const defaultBorderColor = this.configManager.get('borderColor');
-        const numberColor = this.configManager.get('tileNumberColor');
-        const numberAlign = this.configManager.get('tileNumberAlign');
         const showNumbers = this.configManager.get('showTileNumbers');
         const opacity = this.configManager.get('opacity');
 
@@ -283,8 +283,8 @@ class MapEditor {
             // テキスト描画
             if (showNumbers) {
                 const textConfig = new DrawConfig({
-                    textColor: numberColor,
-                    textAlign: numberAlign,
+                    textColor: this.configManager.get('tileNumberColor'),
+                    textAlign: this.configManager.get('tileNumberAlign'),
                     fontSize: 12,
                     fontFamily: 'Arial'
                 });
@@ -335,6 +335,20 @@ class MapEditor {
         ctx.strokeStyle = this.currentBorderColor;
         ctx.lineWidth = this.currentBorderWidth;
         ctx.stroke(path);
+
+        if (this.configManager.get('showTileNumbers')) {
+            const textConfig = new DrawConfig({
+                textColor: this.configManager.get('tileNumberColor'),
+                textAlign: this.configManager.get('tileNumberAlign'),
+                fontSize: 12,
+                fontFamily: 'Arial'
+            });
+            this.renderer.drawHexText(
+                ctx, 0, 0,
+                `${this.dataManager.category}-${this.dataManager.nextId}`,
+                textConfig
+            );
+        }
     }
 
     /**

@@ -86,8 +86,13 @@
 </head>
 <body>
     <h1>Hex Map Editor</h1>
-    <pre>マップをクリックしてタイルを生成/削除します。設定を変更したら「設定を適用」ボタンを押してください。</pre>
-    <pre>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</pre>
+    <p></p>
+    <br>
+    <details>
+        <summary>操作方法</summary>
+        <h4>左クリックでタイルを生成、右クリックで削除します。</h4>
+        <h4>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</h4>
+    </details>
     <div class="tools">
             <label>ツール: </label>
             <select id="toolSelect">
@@ -147,8 +152,8 @@
         </div>
     </div>
     <div id="canvasContainer">
-        <canvas id="canvas" width="1115" height="862"></canvas>
-        <canvas id="overlayCanvas" width="1115" height="862"></canvas>
+        <canvas id="canvas" width="1115" height="862" oncontextmenu="return false;"></canvas>
+        <canvas id="overlayCanvas" width="1115" height="862" oncontextmenu="return false;"></canvas>
     </div>
     <details open="true" class="settings">
         <summary> 設定 </summary>
@@ -159,8 +164,9 @@
                 align:
                 <select id="tileNumberAlign">
                     <option value="center">中央</option>
-                    <option value="left">左</option>
-                    <option value="right">右</option>
+                    <!--なぜかtextalignの設定が左右反対のあべこべになるので、htmlで対応 -->
+                    <option value="left">右</option>
+                    <option value="right">左</option>
                 </select>
             </label>
         </div>
