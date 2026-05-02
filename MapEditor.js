@@ -400,6 +400,10 @@ class MapEditor {
     }
 
     _exportImage() {
+        const filename = prompt('名前を入力', 'hexmap.png');
+        //console.log(filename);
+        if (filename === null) return;
+
         const opacity = parseFloat(document.getElementById('opacity').value);
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = this.canvas.width;
@@ -408,21 +412,24 @@ class MapEditor {
         tempCtx.globalAlpha = opacity;
         tempCtx.drawImage(this.canvas, 0, 0);
         tempCtx.drawImage(this.overlayCanvas, 0, 0);
-
         const link = document.createElement('a');
-        link.download = 'hexmap.png';
+        link.download = filename || 'hexmap.png';
         link.href = tempCanvas.toDataURL();
         link.click();
     }
 
     _exportJSON() {
+        const filename = prompt('名前を入力', 'hexmap.json');
+        //console.log(filename);
+        if (filename === null) return;
+
         const data = this._collectMapData();
         const json = JSON.stringify(data, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'hexmap.json';
+        link.download = filename || 'hexmap.json';
         link.click();
         URL.revokeObjectURL(url);
     }
