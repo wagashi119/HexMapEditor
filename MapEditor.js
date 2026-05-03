@@ -106,7 +106,7 @@ class MapEditor {
             { domId: 'tileRows', configKey: 'tileRows', type: 'number' },
             { domId: 'marginWidth', configKey: 'marginWidth', type: 'number' },
             { domId: 'marginHeight', configKey: 'marginHeight', type: 'number' },
-            { domId: 'opacity', configKey: 'opacity', type: 'range' }
+            { domId: 'opacity', configKey: 'opacity', type: 'range' },
         ]);
         this.toolConfig.registerFields([
             { domId: 'colorInput', configKey: 'tileColor', type: 'color' },
@@ -137,6 +137,7 @@ class MapEditor {
             this.dataManager.setNextId(parseInt(e.target.value, 10) || 1);
             this._drawColorPreview();
         });
+        document.getElementById('backGround').addEventListener('change', (e) => this.changeBackGround(e))
         document.getElementById('exportBtn').addEventListener('click', () => this._exportImage());
         document.getElementById('exportJsonBtn').addEventListener('click', () => this._exportJSON());
         document.getElementById('applySettingsBtn').addEventListener('click', () => this._applySettings());
@@ -227,8 +228,21 @@ class MapEditor {
         }
     }
 
+    changeBackGround(e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            console.log(file)
+            const imageUrl = URL.createObjectURL(file);
+            document.getElementById('canvasContainer').style.backgroundImage = `url("${imageUrl}")`;
+        } else {
+            document.getElementById('canvasContainer').style.backgroundImage = '';
+        }
+    }
+
     render() {
-        this._clearCanvas();
+
+        this._clearCanvas()
         this._drawGrid();
         this._drawHexes();
         this._drawHighlights();

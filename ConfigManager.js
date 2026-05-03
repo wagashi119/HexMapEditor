@@ -19,7 +19,9 @@ class ConfigManager extends EventEmitter {
     set(key, value) {
         if (this.config[key] !== value) {
             this.config[key] = value;
-            this.registeredFields[key].element.value = value; // DOM にも反映
+            if (this.registeredFields[key].type !== 'file') {
+                this.registeredFields[key].element.value = value; // DOM にも反映
+            }
             this.notify('configChanged', {key, value});
         }
     }
@@ -40,6 +42,7 @@ class ConfigManager extends EventEmitter {
         // configKey が指定されない場合、domId をキャメルケース化
         const key = configKey || this._toCamelCase(domId);
         const fieldType = type || element.getAttribute('type') || element.tagName.toLowerCase();
+        if (fieldType === 'file') console.warn(`typeが${fieldType}のバインディング処理を検知しました。\n set関数のDOM変更が機能しない点にご注意ください`);
 
         // 登録情報を保存
         this.registeredFields[key] = {domId, element: element, type: fieldType};
