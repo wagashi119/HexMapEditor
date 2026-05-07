@@ -33,7 +33,6 @@ class MapEditor {
         this.currentTool = ToolFactory.createTool('generate', this.dataManager);
         this.presets = this.loadPresets();
 
-
         this._initialize();
     }
 
@@ -97,6 +96,7 @@ class MapEditor {
             { domId: 'borderWidth', configKey: 'borderWidth', type: 'number' },
             
             // ハイライト表示
+            { domId: 'showHighlight', configKey: 'showHigh', type: 'checkbox'},
             { domId: 'highlightInterval', configKey: 'highlightInterval', type: 'number' },
             { domId: 'highlightColor', configKey: 'highlightColor', type: 'color' },
             { domId: 'highlightWidth', configKey: 'highlightWidth', type: 'number' },
@@ -241,7 +241,6 @@ class MapEditor {
     }
 
     render() {
-
         this._clearCanvas()
         this._drawGrid();
         this._drawHexes();
@@ -316,6 +315,10 @@ class MapEditor {
      * @private
      */
     _drawHighlights() {
+
+        // configManagerからハイライト設定を取得する予定
+        if (!this.configManager.get('showHigh')) return;
+
         const interval = this.configManager.get('highlightInterval');
         const color = this.configManager.get('highlightColor');
         const lineWidth = this.configManager.get('highlightWidth');
