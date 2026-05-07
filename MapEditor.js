@@ -229,10 +229,12 @@ class MapEditor {
     }
 
     changeBackGround(e) {
+
         const file = e.target.files[0];
+        console.log(file, file === undefined, !file, file === null);
 
         if (file) {
-            console.log(file)
+            //console.log(file)
             const imageUrl = URL.createObjectURL(file);
             document.getElementById('canvasContainer').style.backgroundImage = `url("${imageUrl}")`;
         } else {
@@ -350,7 +352,7 @@ class MapEditor {
         ctx.fillStyle = this.currentColor;
         ctx.fillRect(0, 0, 60, 60);
         ctx.strokeStyle = this.currentBorderColor;
-        ctx.lineWidth = this.currentBorderWidth;
+        ctx.lineWidth = this.currentBorderWidth * 2;
         ctx.stroke(path);
 
         if (this.configManager.get('showTileNumbers')) {
