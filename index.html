@@ -40,6 +40,7 @@
             border: 1px solid #000;
         }
         #sizeSetting {
+            display: block;
             border: 1px solid #7a7a7a; 
             padding: 10px;
             border-radius: 5px; 
@@ -47,6 +48,8 @@
         }
         .control-group {
             margin-bottom: 10px;
+            display: flex 20px;
+            gap: 20px;
         }
         button {
             margin-right: 10px;
@@ -81,6 +84,19 @@
         input[type="color"] {
             background-color: transparent;
             border: none;
+            vertical-align: middle;
+        }
+
+        .checkBox {
+            border: 0px solid #868686;
+            border-radius: 3px;
+            user-select: none;
+            background-color: #e7e7e7;
+            font-size:smaller;
+            padding: 6px;
+        }
+        .checkBox input[type="checkBox"] {
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -158,7 +174,7 @@
     <details open="true" class="settings">
         <summary> 設定 </summary>
         <div class="control-group">
-            <label>タイル番号:<input type="checkbox" id="showTileNumbers" checked="true"></label>
+            <label class="checkBox">タイル番号:<input type="checkbox" id="showTileNumbers" checked="true"></label>
             <label>番号色:<input type="color" id="tileNumberColor" value="#000000"></label>
             <label>
                 align:
@@ -171,7 +187,7 @@
             </label>
         </div>
         <div class="control-group">
-            <label>タイルグリッド:<input type="checkbox" id="showGrid" checked="true"></label>
+            <label class="checkBox">タイルグリッド:<input type="checkbox" id="showGrid" checked="true"></label>
             <label>枠線:<input type="color" id="borderColor" value="#000000" alpha="1"></label>
             <label>幅:<input type="number" class="line" id="borderWidth" min="0" value="1"></label>
         </div>
