@@ -20,6 +20,10 @@ class ConfigManager extends EventEmitter {
         if (this.config[key] !== value) {
             this.config[key] = value;
             if (this.registeredFields[key].type !== 'file') {
+
+                if (this.registeredFields[key].type === 'checkbox') {
+                    this.registeredFields[key].element.checked = value;
+                }
                 this.registeredFields[key].element.value = value; // DOM にも反映
             }
             this.notify('configChanged', {key, value});
@@ -123,8 +127,11 @@ class ConfigManager extends EventEmitter {
      */
     applyToDOM(config) {
         Object.entries(config).forEach(([key, value]) => {
+            if (!this.registeredFields[key]) return; 
+
             this.set(key, value);
         });
+        this.notify('configImported', this.config);
     }
 
 
@@ -144,6 +151,7 @@ class ConfigManager extends EventEmitter {
             ...this.config,
             ...config
         };
+        console.log(merged);
         Object.assign(this.config, merged);
         this.notify('configImported', this.config);
         

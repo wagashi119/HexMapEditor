@@ -429,13 +429,15 @@ class MapEditor {
      */
     _collectMapData() {
         return {
-            version: 1,
+            version: 1.1,
             canvas: {
                 width: this.canvas.width,
                 height: this.canvas.height
             },
             settings: {
                 ...this.configManager.export(),
+            },
+            tool: {
                 category: this.dataManager.category,
                 currentColor: this.currentColor,
                 currentBorderColor: this.currentBorderColor,
@@ -466,6 +468,12 @@ class MapEditor {
     _setMapData(data) {
         if (!data || !Array.isArray(data.hexes)) {
             throw new Error('有効なマップデータ(JSON)ではありません。"hexes" 配列が必要です。');
+        }
+        // ツール設定を復元
+        let toolSetting = data.tool;
+        let configSeting = data.setting;
+        if (data.version === 1) {
+            toolSetting = data.setting;
         }
 
         // ヘックスデータを復元
@@ -499,18 +507,19 @@ class MapEditor {
 
         // 設定を復元
         if (data.settings) {
-            this.configManager.import(data.settings);
             this.configManager.applyToDOM(data.settings);
-            
-            if (data.settings.category) {
-                this.dataManager.setCategory(data.settings.category);
+        }
+
+        if (toolSetting) {
+            if (toolSetting.category) {
+                this.dataManager.setCategory(toolSetting.category);
             }
-            if (typeof data.settings.nextId === 'number') {
-                this.dataManager.setNextId(data.settings.nextId);
+            if (typeof toolSetting.nextId === 'number') {
+                this.dataManager.setNextId(toolSetting.nextId);
             }
-            if (data.settings.currentColor) this.currentColor = data.settings.currentColor;
-            if (data.settings.currentBorderColor) this.currentBorderColor = data.settings.currentBorderColor;
-            if (data.settings.currentBorderWidth) this.currentBorderWidth = data.settings.currentBorderWidth;
+            if (toolSetting.currentColor) this.currentColor = toolSetting.currentColor;
+            if (toolSetting.currentBorderColor) this.currentBorderColor = toolSetting.currentBorderColor;
+            if (toolSetting.currentBorderWidth) this.currentBorderWidth = toolSetting.currentBorderWidth;
         }
         
         this._drawColorPreview();
