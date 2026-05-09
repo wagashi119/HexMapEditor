@@ -1,19 +1,3 @@
-class LineConfig {
-    constructor(width, color) {
-        this.width = width;
-        this.color = color;
-    }
-
-    DrawLine(context, x1, y1, x2, y2) {
-        context.strokeStyle = this.color;
-        context.lineWidth = this.width;
-        context.beginPath();
-        context.moveTo(x1, y1);
-        context.lineTo(x2, y2);
-        context.stroke();
-    }
-}
-
 class HexRenderer {
     constructor() {
         this.hexPathCache = {}; // 六角形パスのキャッシュ
@@ -135,16 +119,39 @@ class HexRenderer {
     }
 
     /**
-     * 旧メソッド: 直接キャンバスにジオメトリを描画（後方互換性）
-     * @deprecated drawHex を使用してください
+     * 
+     * @param {CanvasRenderingContext2D} context 
+     * @param {Object[]} hexes 
+     * @param {number} opacity
+     * @param {DrawConfig} textConfig
      */
-    _drawHexGeometry(context, x, y, color, borderColor, lineWidth, size = HexCoordinateSystem.hexSize) {
-        const path = this._createHexPath(x, y, size);
-        context.fillStyle = color;
-        context.fill(path);
-        context.strokeStyle = borderColor;
-        context.lineWidth = lineWidth;
-        context.stroke(path);
+    drawHexes(context, hexes, opacity, textConfig, defaultBorderColor="#000000aa") {
+        hexes.sort((a,b) => a.borderWidth-b.borderWidth); 
+
+        hexes.forEach(hex => {
+            // hex 固有の値、またはデフォルト値を使用
+            const hexBorderColor = hex.borderColor || defaultBorderColor;
+            const hexLineWidth = hex.borderWidth !== undefined ? hex.borderWidth : 1;
+            
+            // DrawConfig を使用した統一的な描画
+            const drawConfig = new DrawConfig({
+                fillColor: hex.color,
+                strokeColor: hexBorderColor,
+                lineWidth: hexLineWidth,
+                opacity: opacity
+            });
+            
+            this.drawHex(context, hex.q, hex.r, drawConfig);
+
+            // テキスト描画
+            if (textConfig) {
+                this.drawHexText(
+                    context, hex.q, hex.r,
+                    `${hex.category}-${hex.id}`,
+                    textConfig
+                );
+            }
+        });
     }
 
     /**

@@ -280,36 +280,16 @@ class MapEditor {
         const showNumbers = this.configManager.get('showTileNumbers');
         const opacity = this.configManager.get('opacity');
 
-        this.dataManager.getAllHexes().forEach(hex => {
-            // hex 固有の値、またはデフォルト値を使用
-            const hexBorderColor = hex.borderColor || defaultBorderColor;
-            const hexLineWidth = hex.borderWidth !== undefined ? hex.borderWidth : 1;
-            
-            // DrawConfig を使用した統一的な描画
-            const drawConfig = new DrawConfig({
-                fillColor: hex.color,
-                strokeColor: hexBorderColor,
-                lineWidth: hexLineWidth,
-                opacity: opacity
-            });
-            
-            this.renderer.drawHex(this.ctx, hex.q, hex.r, drawConfig);
-
-            // テキスト描画
-            if (showNumbers) {
-                const textConfig = new DrawConfig({
-                    textColor: this.configManager.get('tileNumberColor'),
-                    textAlign: this.configManager.get('tileNumberAlign'),
-                    fontSize: 12,
-                    fontFamily: 'Arial'
-                });
-                this.renderer.drawHexText(
-                    this.ctx, hex.q, hex.r,
-                    `${hex.category}-${hex.id}`,
-                    textConfig
-                );
-            }
-        });
+        let textConfig = null;
+        if (showNumbers) {
+            textConfig = new DrawConfig({
+                textColor: this.configManager.get('tileNumberColor'),
+                textAlign: this.configManager.get('tileNumberAlign'),
+                fontSize: 12,
+                fontFamily: 'Arial'
+            })
+        }
+        this.renderer.drawHexes(this.ctx, this.dataManager.getAllHexes(), opacity, textConfig)
     }
 
     /**
@@ -389,16 +369,6 @@ class MapEditor {
         // 表示を元に戻す
         document.getElementById('sizeSetting').style.backgroundColor = '#e7e7e7';
         document.getElementById('applySettingsBtn').style.backgroundColor = 'rgb(240, 240, 240)';
-    }
-
-    /**
-     * 旧メソッド: DOM から設定を収集（後方互換性）
-     * @deprecated 自動バインディングで不要
-     * @private
-     */
-    _collectSettingsFromDOM() {
-        // 自動バインディングで configManager に既に反映されている
-        return this.configManager.export();
     }
 
     /**
