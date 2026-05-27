@@ -336,7 +336,7 @@ class MapEditor {
         ctx.fillStyle = this.currentColor;
         ctx.fillRect(0, 0, 60, 60);
         ctx.strokeStyle = this.currentBorderColor;
-        ctx.lineWidth = this.currentBorderWidth * 2;
+        ctx.lineWidth = this.currentBorderWidth * 1.5;
         ctx.stroke(path);
 
         if (this.configManager.get('showTileNumbers')) {
