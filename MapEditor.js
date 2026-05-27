@@ -65,6 +65,8 @@ class MapEditor {
                 tileRows: 17,
                 marginWidth: 0,
                 marginHeight: 0,
+                offsetWidth: 0,
+                offsetHeight: 0,
                 opacity: 0.8
             })
         );
@@ -106,6 +108,8 @@ class MapEditor {
             { domId: 'tileRows', configKey: 'tileRows', type: 'number' },
             { domId: 'marginWidth', configKey: 'marginWidth', type: 'number' },
             { domId: 'marginHeight', configKey: 'marginHeight', type: 'number' },
+            { domId: 'offsetWidth', configKey: 'offsetWidth', type: 'number' },
+            { domId: 'offsetHeight', configKey: 'offsetHeight', type: 'number' },
             { domId: 'opacity', configKey: 'opacity', type: 'range' },
         ]);
         this.toolConfig.registerFields([
@@ -211,13 +215,13 @@ class MapEditor {
         this.render();
 
         // size関連の変更があったら、サイズ設定の背景を変える
-        if (event === 'configChanged' && (data.key === 'tileCols' || data.key === 'tileRows' || data.key === 'marginWidth' || data.key === 'marginHeight')) {
+        if (event === 'configChanged' && (data.key === 'tileCols' || data.key === 'tileRows' || data.key === 'marginWidth' || data.key === 'marginHeight' || data.key === 'offsetWidth' || data.key === 'offsetHeight')) {
             
             const { width, height } = HexCoordinateSystem.tileToCanvasSize(this.configManager.get('tileCols'), this.configManager.get('tileRows'));
             const settings = document.getElementById('sizeSetting');
             const btn = document.getElementById('applySettingsBtn');
             // 元の設定に戻ったら背景色も戻す
-            if (width === this.canvas.width && height === this.canvas.height && HexCoordinateSystem.withOffset === this.configManager.get('marginWidth') && HexCoordinateSystem.heightOffset === this.configManager.get('marginHeight')) {
+            if (width === this.canvas.width && height === this.canvas.height && HexCoordinateSystem.withMargin === this.configManager.get('marginWidth') && HexCoordinateSystem.heightMargin === this.configManager.get('marginHeight') && HexCoordinateSystem.offsetWidth === this.configManager.get('offsetWidth') && HexCoordinateSystem.offsetHeight === this.configManager.get('offsetHeight')) {
                 settings.style.backgroundColor = '#e7e7e7';
                 btn.style.backgroundColor = 'rgb(240, 240, 240)';
 
@@ -357,8 +361,10 @@ class MapEditor {
     _applySettings() {
 
         // マージンを座標システムに反映
-        HexCoordinateSystem.withOffset = this.configManager.get('marginWidth');
-        HexCoordinateSystem.heightOffset = this.configManager.get('marginHeight');
+        HexCoordinateSystem.withMargin = this.configManager.get('marginWidth');
+        HexCoordinateSystem.heightMargin = this.configManager.get('marginHeight');
+        HexCoordinateSystem.offsetWidth = this.configManager.get('offsetWidth');
+        HexCoordinateSystem.offsetHeight = this.configManager.get('offsetHeight');
 
         // キャンバスサイズを更新
         this._setCanvasSizeByTiles(

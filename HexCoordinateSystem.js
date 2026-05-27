@@ -1,32 +1,42 @@
 class HexCoordinateSystem {
     static hexSize = 30;
-    static heightOffset = 0; 
-    static withOffset = 0;
+    static heightMargin = 0; 
+    static withMargin = 0;
+    static offsetWidth = 0;
+    static offsetHeight = 0;
 
     constructor() {
     }
 
     static toPixel(q, r, canvasWidth, canvasHeight) {
-        const x = this.hexSize * (3/2 * q) + q*this.withOffset;
-        const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r) + r*this.heightOffset;
+        const x = this.hexSize * (3/2 * q) + q*this.withMargin;
+        const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r) + r*this.heightMargin;
         return {
-            x: x + canvasWidth / 2,
-            y: y + canvasHeight / 2
+            x: x + canvasWidth / 2 + this.offsetWidth*this.hexSize,
+            y: y + canvasHeight / 2 + this.offsetHeight*this.hexSize
         };
     }
 
     static toHex(x, y, canvasWidth, canvasHeight) {
-        x -= canvasWidth / 2;
-        y -= canvasHeight / 2;
+        x -= canvasWidth / 2 + this.offsetWidth*this.hexSize;
+        y -= canvasHeight / 2 + this.offsetHeight*this.hexSize;
 
-        const xScale = this.hexSize * 3 / 2 + this.withOffset;
+        const xScale = this.hexSize * 3 / 2 + this.withMargin;
         const yQScale = this.hexSize * Math.sqrt(3) / 2;
-        const yRScale = this.hexSize * Math.sqrt(3) + this.heightOffset;
+        const yRScale = this.hexSize * Math.sqrt(3) + this.heightMargin;
 
         const q = x / xScale;
         const r = (y - yQScale * q) / yRScale;
 
         return this.round(q, r);
+    }
+    static toGenerickPixel(q, r, canvasWidth, canvasHeight) {
+        const x = this.hexSize * (3/2 * q);
+        const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r);
+        return {
+            x: x + canvasWidth / 2,
+            y: y + canvasHeight / 2
+        };
     }
 
     static round(q, r) {
@@ -65,8 +75,8 @@ class HexCoordinateSystem {
         // 最外のタイルのピクセル位置を計算
         const maxQ = tileWidth - 1;
         const maxR = tileHeight - 1;
-        const {x: maxX} = this.toPixel(maxQ, 0, 0, 0);
-        const {y: maxY} = this.toPixel(0, maxR, 0, 0);
+        const {x: maxX} = this.toGenerickPixel(maxQ, 0, 0, 0);
+        const {y: maxY} = this.toGenerickPixel(0, maxR, 0, 0);
 
         const width = Math.ceil(maxX + this.hexSize);
         const height = Math.ceil(maxY + this.hexSize);
