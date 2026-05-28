@@ -167,50 +167,24 @@ class MapEditor {
         if (e.button === 1) {
             // webの既存操作はキャンセル
             e.preventDefault();
-            this._eyedropper(q, r);
+            ToolFactory.createTool('copy', this.dataManager).execute(q, r, this.toolConfig);
+            //this._eyedropper(q, r);
             return;
         }
         if (e.button === 2) {
             //console.warn('右クリックは現在サポートされていません。');
             e.preventDefault();
-
-            ToolFactory.createTool('delete', this.dataManager).execute(q, r, {
-                color: this.currentColor,
-                borderColor: this.currentBorderColor,
-                borderWidth: this.currentBorderWidth,
-                id: this.currentId,
-                category: this.currentCategory
-            }, this.toolConfig);
+            ToolFactory.createTool('delete', this.dataManager).execute(q, r, this.toolConfig);
             return;
         }
 
         if (this.currentTool) {
-            this.currentTool.execute(q, r, {
-                color: this.currentColor,
-                borderColor: this.currentBorderColor,
-                borderWidth: this.currentBorderWidth,
-                id: this.currentId,
-                category: this.currentCategory
-            }, this.toolConfig);
+            this.currentTool.execute(q, r, this.toolConfig);
         }
     }
 
     setTool(toolType) {
         this.currentTool = ToolFactory.createTool(toolType, this.dataManager);
-    }
-
-    _eyedropper(q, r) {
-        const hex = this.dataManager.getHex(q, r);
-        if (hex) {
-            //console.log(`Eyedropper: Picked hex at (${q}, ${r}):`, hex);
-
-            this.currentColor = hex.color;
-            this.currentBorderColor = hex.borderColor || '#000000';
-            this.currentBorderWidth = hex.borderWidth || 1;
-            this.currentCategory = hex.category;
-            this.currentId = hex.id + 1;
-            this._drawColorPreview();
-        }
     }
 
     _onDataChanged() {
@@ -494,7 +468,7 @@ class MapEditor {
             }
             const key = `${hex.q},${hex.r}`;
             //console.log(`Importing hex at (${hex.q}, ${hex.r}) with data:`, hex);
-            this.dataManager.addHex(hex.q, hex.r, Hex.convertToData(hex));
+            this.dataManager.addHex(hex.q, hex.r, Hex.fromData(hex));
             if (typeof hex.id === 'number' && hex.id > maxId) {
                 maxId = hex.id;
             }

@@ -17,17 +17,15 @@ class ConfigManager extends EventEmitter {
     }
 
     set(key, value, silent=false) {
-        if (this.config[key] !== value) {
-            this.config[key] = value;
-            if (this.registeredFields[key].type !== 'file') {
+        this.config[key] = value;
+        if (this.registeredFields[key].type !== 'file') {
 
-                if (this.registeredFields[key].type === 'checkbox') {
-                    this.registeredFields[key].element.checked = value;
-                }
-                this.registeredFields[key].element.value = value; // DOM にも反映
+            if (this.registeredFields[key].type === 'checkbox') {
+                this.registeredFields[key].element.checked = value;
             }
-            if (!silent) this.notify('configChanged', {key, value});
+            this.registeredFields[key].element.value = value; // DOM にも反映
         }
+        if (!silent) this.notify('configChanged', {key, value});
     }
 
     /**

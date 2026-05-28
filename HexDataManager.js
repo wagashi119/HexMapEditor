@@ -6,6 +6,15 @@ class Hex {
         this.id = id;
         this.category = category;
     }
+    static fromData(data) {
+        return new Hex(
+            data.color || '#ff0000',
+            data.borderColor || '#000000',
+            data.borderWidth || 1,
+            typeof data.id === 'number' ? data.id : 1,
+            data.category || 'A'
+        );
+    }
 
     GetDrawData() {
         return {
@@ -17,16 +26,6 @@ class Hex {
 
     GetID() {
         return `${this.category}-${this.id}`;
-    }
-
-    static convertToData(data) {
-        return new Hex(
-            data.color || '#ff0000',
-            data.borderColor || '#000000',
-            data.borderWidth || 1,
-            typeof data.id === 'number' ? data.id : 1,
-            data.category || 'A'
-        );
     }
 }
 

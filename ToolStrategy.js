@@ -3,49 +3,52 @@ class BaseTool {
         this.dataManager = dataManager;
     }
 
-    execute(q, r, params, toolConfig) {
+    execute(q, r, toolConfig) {
         throw new Error('execute() must be implemented');
     }
 }
 
 class GenerateTool extends BaseTool {
-    execute(q, r, params, toolConfig) {
-        const hex = new Hex(
-            params.color,
-            params.borderColor,
-            params.borderWidth,
-            params.id,
-            params.category
-        );
+    execute(q, r, toolConfig) {
+        const hex = Hex.fromData(toolConfig.config);
         this.dataManager.addHex(q, r, hex);
     }
 }
 
 class DeleteTool extends BaseTool {
-    execute(q, r, params, toolConfig) {
+    execute(q, r, toolConfig) {
         this.dataManager.removeHex(q, r);
     }
 }
 
-class Adjustment extends BaseTool {
+class AdjustmentTool extends BaseTool {
 
     // ツールUIの設定とタイルの設定を入れ替える
-    execute(q, r, params, toolConfig) {
+    execute(q, r, toolConfig) {
         const hex = this.dataManager.getHex(q, r);
         //console.log(`Adjusting hex at (${q}, ${r}) with params:`, params);
 
         // ツールUIの設定をタイルに適用
-        const hexSettings = new Hex(
-            params.color,
-            params.borderColor,
-            params.borderWidth,
-            params.id,
-            params.category
-        );
+        const hexSettings = Hex.fromData(toolConfig.config);
         this.dataManager.addHex(q, r, hexSettings);
 
         // タイルの設定をツールUIに適用
         toolConfig.import(JSON.parse(JSON.stringify(hex)));
+    }
+}
+
+class CopyTool extends BaseTool {
+    execute(q, r, toolConfig) {
+        const hex = this.dataManager.getHex(q, r);
+        if (hex) {
+            //console.log(`Eyedropper: Picked hex at (${q}, ${r}):`, hex);
+
+            toolConfig.set('color', hex.color, true);
+            toolConfig.set('borderColor', hex.borderColor || '#000000', true);
+            toolConfig.set('borderWidth', hex.borderWidth || 1, true);
+            toolConfig.set('category', hex.category, true);
+            toolConfig.set('id', hex.id + 1);
+        }
     }
 }
 
@@ -56,8 +59,10 @@ class ToolFactory {
                 return new GenerateTool(dataManager);
             case 'delete':
                 return new DeleteTool(dataManager);
+            case 'copy':
+                return new CopyTool(dataManager);
             case 'adjustment':
-                return new Adjustment(dataManager);
+                return new AdjustmentTool(dataManager);
             default:
                 throw new Error(`Unknown tool: ${toolType}`);
         }
