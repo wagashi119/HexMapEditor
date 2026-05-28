@@ -35,8 +35,6 @@ class HexDataManager extends EventEmitter {
     constructor() {
         super();
         this.hexes = {};
-        this.nextId = 1;
-        this.category = 'A';
     }
 
     addHex(q, r, hex) {
@@ -63,19 +61,6 @@ class HexDataManager extends EventEmitter {
             const [q, r] = key.split(',').map(Number);
             return {q, r, ...hex};
         });
-    }
-
-    setNextId(id) {
-        this.nextId = id;
-    }
-
-    getNextId() {
-        return this.nextId++;
-    }
-
-    setCategory(category) {
-        this.category = category;
-        this.nextId = 1;
     }
 
     /**

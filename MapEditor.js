@@ -17,6 +17,18 @@ class MapEditor {
     set currentBorderWidth(value) {
         this.toolConfig.set('BorderWidth', value);
     }
+    get currentCategory() {
+        return this.toolConfig.get('category');
+    }
+    set currentCategory(value) {
+        this.toolConfig.set('category', value);
+    }
+    get currentId() {
+        return this.toolConfig.get('nextId');
+    }
+    set currentId(value) {
+        this.toolConfig.set('nextId', value);
+    }
 
     constructor(canvasId, overlayCanvasId, configManager) {
         this.canvas = document.getElementById(canvasId);
@@ -115,7 +127,9 @@ class MapEditor {
         this.toolConfig.registerFields([
             { domId: 'colorInput', configKey: 'tileColor', type: 'color' },
             { domId: 'tileBorderColor', configKey: 'BorderColor', type: 'color' },
-            { domId: 'lineWidthInput', configKey: 'BorderWidth', type: 'number' }
+            { domId: 'lineWidthInput', configKey: 'BorderWidth', type: 'number' },
+            { domId: 'categorySelect', configKey: 'category', type: 'select' },
+            { domId: 'categoryIdInput', configKey: 'nextId', type: 'number' }
         ]);
     }
 
@@ -124,6 +138,11 @@ class MapEditor {
             if (event === 'configChanged') {
                 this._drawColorPreview();
             }
+            // カテゴリが変化していたらリセット
+            if (data.key === 'category') {
+                this.toolConfig.set('nextId', 1, true);
+            }
+
             document.getElementById('colorLabel').style.color = this.currentColor;
             document.getElementById('borderColorLabel').style.color = this.currentBorderColor;
         });
@@ -131,15 +150,6 @@ class MapEditor {
         this.canvas.addEventListener('mousedown', (e) => this._handleCanvasClick(e));
         document.getElementById('toolSelect').addEventListener('change', (e) => {
             this.setTool(e.target.value);
-        });
-        document.getElementById('categorySelect').addEventListener('change', (e) => {
-            this.dataManager.setCategory(e.target.value);
-            document.getElementById('categoryIdInput').value = this.dataManager.nextId;
-            this._drawColorPreview();
-        });
-        document.getElementById('categoryIdInput').addEventListener('change', (e) => {
-            this.dataManager.setNextId(parseInt(e.target.value, 10) || 1);
-            this._drawColorPreview();
         });
         document.getElementById('backGround').addEventListener('change', (e) => this.changeBackGround(e))
         document.getElementById('exportBtn').addEventListener('click', () => this._exportImage());
@@ -170,8 +180,8 @@ class MapEditor {
                 color: this.currentColor,
                 borderColor: this.currentBorderColor,
                 borderWidth: this.currentBorderWidth,
-                id: this.dataManager.getNextId(),
-                category: this.dataManager.category
+                id: this.currentId,
+                category: this.currentCategory
             });
             return;
         }
@@ -181,8 +191,8 @@ class MapEditor {
                 color: this.currentColor,
                 borderColor: this.currentBorderColor,
                 borderWidth: this.currentBorderWidth,
-                id: this.dataManager.getNextId(),
-                category: this.dataManager.category
+                id: this.currentId,
+                category: this.currentCategory
             });
         }
     }
@@ -199,10 +209,8 @@ class MapEditor {
             this.currentColor = hex.color;
             this.currentBorderColor = hex.borderColor || '#000000';
             this.currentBorderWidth = hex.borderWidth || 1;
-            this.dataManager.setCategory(hex.category);
-            this.dataManager.setNextId(hex.id + 1);
-            document.getElementById('categorySelect').value = hex.category;
-            document.getElementById('categoryIdInput').value = this.dataManager.nextId;
+            this.currentCategory = hex.category;
+            this.currentId = hex.id + 1;
             this._drawColorPreview();
         }
     }
@@ -348,7 +356,7 @@ class MapEditor {
             });
             this.renderer.drawHexText(
                 ctx, 0, 0,
-                `${this.dataManager.category}-${this.dataManager.nextId}`,
+                `${this.currentCategory}-${this.currentId}`,
                 textConfig
             );
         }
@@ -444,11 +452,7 @@ class MapEditor {
                 ...this.configManager.export(),
             },
             tool: {
-                category: this.dataManager.category,
-                currentColor: this.currentColor,
-                currentBorderColor: this.currentBorderColor,
-                currentBorderWidth: this.currentBorderWidth,
-                nextId: this.dataManager.nextId
+                ...this.toolConfig.export(),
             },
             hexes: this.dataManager.getAllHexes()
         };
@@ -498,8 +502,7 @@ class MapEditor {
             }
         });
 
-        this.dataManager.nextId = Math.max(maxId + 1, 1);
-        document.getElementById('categoryIdInput').value = this.dataManager.nextId;
+        this.currentId = Math.max(maxId + 1, 1);
 
         // キャンバスサイズを復元
         if (data.canvas && typeof data.canvas.width === 'number' && typeof data.canvas.height === 'number') {
@@ -518,10 +521,10 @@ class MapEditor {
 
         if (toolSetting) {
             if (toolSetting.category) {
-                this.dataManager.setCategory(toolSetting.category);
+                this.currentCategory = toolSetting.category;
             }
             if (typeof toolSetting.nextId === 'number') {
-                this.dataManager.setNextId(toolSetting.nextId);
+                this.currentId = toolSetting.nextId;
             }
             if (toolSetting.currentColor) this.currentColor = toolSetting.currentColor;
             if (toolSetting.currentBorderColor) this.currentBorderColor = toolSetting.currentBorderColor;

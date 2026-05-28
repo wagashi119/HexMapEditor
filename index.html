@@ -114,6 +114,7 @@
             <select id="toolSelect">
                 <option value="generate">生成</option>
                 <option value="delete">削除</option>
+                <option value="adjustment">調整</option>
             </select>
         <div style="display: flex;">
             <canvas id="colorPreview" width="60" height="60"></canvas>
@@ -260,7 +261,7 @@
             //console.log(reOpenTime +"<"+ Date.now() + "-" + beforeDate);
             const reMaind = reOpenTime < Date.now() - beforeDate;
 
-            localStorage.setItem('hexMap-date', Date.now())
+            localStorage.setItem('hexMap-date', Date.now());
             //console.log(reMaind);
             return reMaind;
         }

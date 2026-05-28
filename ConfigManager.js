@@ -16,7 +16,7 @@ class ConfigManager extends EventEmitter {
         return this.config[key];
     }
 
-    set(key, value) {
+    set(key, value, silent=false) {
         if (this.config[key] !== value) {
             this.config[key] = value;
             if (this.registeredFields[key].type !== 'file') {
@@ -26,7 +26,7 @@ class ConfigManager extends EventEmitter {
                 }
                 this.registeredFields[key].element.value = value; // DOM にも反映
             }
-            this.notify('configChanged', {key, value});
+            if (!silent) this.notify('configChanged', {key, value});
         }
     }
 
