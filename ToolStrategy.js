@@ -3,13 +3,13 @@ class BaseTool {
         this.dataManager = dataManager;
     }
 
-    execute(q, r, params) {
+    execute(q, r, params, toolConfig) {
         throw new Error('execute() must be implemented');
     }
 }
 
 class GenerateTool extends BaseTool {
-    execute(q, r, params) {
+    execute(q, r, params, toolConfig) {
         const hex = new Hex(
             params.color,
             params.borderColor,
@@ -22,26 +22,30 @@ class GenerateTool extends BaseTool {
 }
 
 class DeleteTool extends BaseTool {
-    execute(q, r) {
+    execute(q, r, params, toolConfig) {
         this.dataManager.removeHex(q, r);
     }
 }
 
 class Adjustment extends BaseTool {
-    execute(q, r, params) {
+
+    // ツールUIの設定とタイルの設定を入れ替える
+    execute(q, r, params, toolConfig) {
         const hex = this.dataManager.getHex(q, r);
-        if (hex) {
-            // hexのプロパティを調整できるwindowを表示
-            console.log(`Adjusting hex at (${q}, ${r}) with params:`, params);
-            console.log('Current hex data:', hex);
+        //console.log(`Adjusting hex at (${q}, ${r}) with params:`, params);
 
-            // ここでwindowを表示して、ユーザーがhexのプロパティを変更できるようにする
-            
+        // ツールUIの設定をタイルに適用
+        const hexSettings = new Hex(
+            params.color,
+            params.borderColor,
+            params.borderWidth,
+            params.id,
+            params.category
+        );
+        this.dataManager.addHex(q, r, hexSettings);
 
-
-        } else {
-            console.log(`No hex found at (${q}, ${r}) to adjust.`);
-        }
+        // タイルの設定をツールUIに適用
+        toolConfig.import(JSON.parse(JSON.stringify(hex)));
     }
 }
 

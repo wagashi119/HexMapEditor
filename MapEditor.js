@@ -1,21 +1,21 @@
 class MapEditor {
     get currentColor() {
-        return this.toolConfig.get('tileColor');
+        return this.toolConfig.get('color');
     }
     set currentColor(value) {        
-        this.toolConfig.set('tileColor', value);
+        this.toolConfig.set('color', value);
     }
     get currentBorderColor() {
-        return this.toolConfig.get('BorderColor');
+        return this.toolConfig.get('borderColor');
     }
     set currentBorderColor(value) {
-        this.toolConfig.set('BorderColor', value);
+        this.toolConfig.set('borderColor', value);
     }
     get currentBorderWidth() {
-        return this.toolConfig.get('BorderWidth');
+        return this.toolConfig.get('borderWidth');
     }
     set currentBorderWidth(value) {
-        this.toolConfig.set('BorderWidth', value);
+        this.toolConfig.set('borderWidth', value);
     }
     get currentCategory() {
         return this.toolConfig.get('category');
@@ -24,10 +24,10 @@ class MapEditor {
         this.toolConfig.set('category', value);
     }
     get currentId() {
-        return this.toolConfig.get('nextId');
+        return this.toolConfig.get('id');
     }
     set currentId(value) {
-        this.toolConfig.set('nextId', value);
+        this.toolConfig.set('id', value);
     }
 
     constructor(canvasId, overlayCanvasId, configManager) {
@@ -55,8 +55,8 @@ class MapEditor {
         this._attachEventListeners();
         this.dataManager.subscribe((event, data) => this._onDataChanged(event, data));
         this.configManager.subscribe((event, data) => this._onConfigChanged(event, data));
-        this.configManager.applyToDOM(
-            config => ({
+        this.configManager.import(
+            ({
                 // タイル番号表示
                 showTileNumbers: true,
                 tileNumberColor: '#000000',
@@ -82,10 +82,10 @@ class MapEditor {
                 opacity: 0.8
             })
         );
-        this.toolConfig.applyToDOM({
-            tileColor: '#506ab9',
-            BorderColor: '#7c84fe',
-            BorderWidth: 1
+        this.toolConfig.import({
+            color: '#506ab9',
+            borderColor: '#7c84fe',
+            borderWidth: 1
         });
         this._drawColorPreview();
         this.updatePresetDropdown();
@@ -125,24 +125,22 @@ class MapEditor {
             { domId: 'opacity', configKey: 'opacity', type: 'range' },
         ]);
         this.toolConfig.registerFields([
-            { domId: 'colorInput', configKey: 'tileColor', type: 'color' },
-            { domId: 'tileBorderColor', configKey: 'BorderColor', type: 'color' },
-            { domId: 'lineWidthInput', configKey: 'BorderWidth', type: 'number' },
+            { domId: 'colorInput', configKey: 'color', type: 'color' },
+            { domId: 'tileBorderColor', configKey: 'borderColor', type: 'color' },
+            { domId: 'lineWidthInput', configKey: 'borderWidth', type: 'number' },
             { domId: 'categorySelect', configKey: 'category', type: 'select' },
-            { domId: 'categoryIdInput', configKey: 'nextId', type: 'number' }
+            { domId: 'categoryIdInput', configKey: 'id', type: 'number' }
         ]);
     }
 
     _attachEventListeners() {
         this.toolConfig.subscribe((event, data) => {
-            if (event === 'configChanged') {
-                this._drawColorPreview();
-            }
             // カテゴリが変化していたらリセット
             if (data.key === 'category') {
                 this.toolConfig.set('nextId', 1, true);
             }
 
+            this._drawColorPreview();
             document.getElementById('colorLabel').style.color = this.currentColor;
             document.getElementById('borderColorLabel').style.color = this.currentBorderColor;
         });
@@ -182,7 +180,7 @@ class MapEditor {
                 borderWidth: this.currentBorderWidth,
                 id: this.currentId,
                 category: this.currentCategory
-            });
+            }, this.toolConfig);
             return;
         }
 
@@ -193,7 +191,7 @@ class MapEditor {
                 borderWidth: this.currentBorderWidth,
                 id: this.currentId,
                 category: this.currentCategory
-            });
+            }, this.toolConfig);
         }
     }
 

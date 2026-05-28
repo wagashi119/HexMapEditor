@@ -57,7 +57,7 @@ class ConfigManager extends EventEmitter {
         // DOM 変更リスナーを設定
         element.addEventListener('change', () => {
             this._loadFieldValue(element, key, fieldType);
-            this.applyToDOM({[key]: this.config[key]});
+            //this.applyToDOM({[key]: this.config[key]});
         });
         
         // リアルタイム更新（range/number）
@@ -129,7 +129,12 @@ class ConfigManager extends EventEmitter {
         Object.entries(config).forEach(([key, value]) => {
             if (!this.registeredFields[key]) return; 
 
-            this.set(key, value);
+            const registered = this.registeredFields[key];
+            if (registered.type === 'checkbox') {
+                registered.element.checked = value;
+            }
+            registered.element.value = value; // DOM にも反映
+
         });
         this.notify('configImported', this.config);
     }
@@ -153,7 +158,7 @@ class ConfigManager extends EventEmitter {
         };
         console.log(merged);
         Object.assign(this.config, merged);
-        this.notify('configImported', this.config);
+        //this.notify('configImported', this.config);
         
         // DOM に反映
         this.applyToDOM(this.config);
