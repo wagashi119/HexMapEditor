@@ -185,6 +185,9 @@ class MapEditor {
 
     setTool(toolType) {
         this.currentTool = ToolFactory.createTool(toolType, this.dataManager);
+        if (document.getElementById('toolSelect').value !== toolType) {
+            document.getElementById('toolSelect').value = toolType;
+        }
     }
 
     _onDataChanged() {
@@ -555,11 +558,8 @@ class MapEditor {
             this.currentColor = preset.tileColor;
             this.currentBorderColor = preset.borderColor;
             this.currentBorderWidth = preset.borderWidth || 1;
-            document.getElementById('colorInput').value = this.currentColor;
-            document.getElementById('tileBorderColor').value = this.currentBorderColor;
-            document.getElementById('lineWidthInput').value = this.currentBorderWidth;
-            this._drawColorPreview();
         }
+        this.setTool('generate');
     }
 
     _onAddPreset() {
