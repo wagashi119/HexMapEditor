@@ -147,7 +147,7 @@ class HexRenderer {
             if (textConfig) {
                 this.drawHexText(
                     context, hex.q, hex.r,
-                    `${hex.category}-${hex.id}`,
+                    hex.GetID(),
                     textConfig
                 );
             }

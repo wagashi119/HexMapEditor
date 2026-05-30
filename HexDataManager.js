@@ -5,6 +5,8 @@ class Hex {
         this.borderWidth = borderWidth;
         this.id = id;
         this.category = category;
+        this.q = null;
+        this.r = null;
     }
     static fromData(data) {
         return new Hex(
@@ -12,7 +14,7 @@ class Hex {
             data.borderColor || '#000000',
             data.borderWidth || 1,
             typeof data.id === 'number' ? data.id : 1,
-            data.category || 'A'
+            data.category
         );
     }
 
@@ -25,6 +27,10 @@ class Hex {
     }
 
     GetID() {
+        if (this.category === '') {
+            return '';
+        }
+
         return `${this.category}-${this.id}`;
     }
 }
@@ -39,6 +45,8 @@ class HexDataManager extends EventEmitter {
     addHex(q, r, hex) {
         const key = `${q},${r}`;
         this.hexes[key] = hex;
+        hex.q = q;
+        hex.r = r;
         //console.log(`Hex added at (${q}, ${r}):`, hex);
         this.notify('hexAdded', {q, r, hex});
     }
@@ -56,10 +64,7 @@ class HexDataManager extends EventEmitter {
     }
 
     getAllHexes() {
-        return Object.entries(this.hexes).map(([key, hex]) => {
-            const [q, r] = key.split(',').map(Number);
-            return {q, r, ...hex};
-        });
+        return Object.values(this.hexes);
     }
 
     /**

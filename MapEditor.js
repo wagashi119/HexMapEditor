@@ -137,7 +137,7 @@ class MapEditor {
         this.toolConfig.subscribe((event, data) => {
             // カテゴリが変化していたらリセット
             if (data.key === 'category') {
-                this.toolConfig.set('nextId', 1, true);
+                this.toolConfig.set('id', 1, true);
             }
 
             this._drawColorPreview();
@@ -308,6 +308,8 @@ class MapEditor {
         const canvas = document.getElementById('colorPreview');
         if (!canvas) return;
 
+        const hex = Hex.fromData(this.toolConfig.export());
+
         // プレビューキャンバスに描画
         const ctx = canvas.getContext('2d');
         ctx.globalAlpha = configManager.get('opacity');
@@ -328,7 +330,7 @@ class MapEditor {
             });
             this.renderer.drawHexText(
                 ctx, 0, 0,
-                `${this.currentCategory}-${this.currentId}`,
+                hex.GetID(),
                 textConfig
             );
         }

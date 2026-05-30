@@ -10,8 +10,11 @@ class BaseTool {
 
 class GenerateTool extends BaseTool {
     execute(q, r, toolConfig) {
+
         const hex = Hex.fromData(toolConfig.config);
         this.dataManager.addHex(q, r, hex);
+
+        toolConfig.set('id', toolConfig.config.id + 1);
     }
 }
 
@@ -52,6 +55,19 @@ class CopyTool extends BaseTool {
     }
 }
 
+class NumberTool extends BaseTool {
+    execute(q, r, toolConfig) {
+        let hex = this.dataManager.getHex(q, r);
+        if (hex) {
+            hex.id = toolConfig.get('id') || 1;
+            hex.category = toolConfig.get('category');
+            this.dataManager.addHex(q, r, hex); // 更新
+
+            toolConfig.set('id', toolConfig.config.id + 1);
+        }
+    }
+}
+
 class ToolFactory {
     static createTool(toolType, dataManager) {
         switch (toolType) {
@@ -63,6 +79,8 @@ class ToolFactory {
                 return new CopyTool(dataManager);
             case 'adjustment':
                 return new AdjustmentTool(dataManager);
+            case 'number':
+                return new NumberTool(dataManager);
             default:
                 throw new Error(`Unknown tool: ${toolType}`);
         }
