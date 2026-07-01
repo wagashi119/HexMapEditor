@@ -74,12 +74,12 @@ class MapEditor {
                 
                 // キャンバス設定
                 tileCols: 26,
-                tileRows: 17,
+                tileRows: 9,
                 marginWidth: 0,
                 marginHeight: 0,
                 offsetWidth: 0,
                 offsetHeight: 0,
-                opacity: 0.8
+                opacity: 1.0
             })
         );
         this.toolConfig.import({
@@ -123,6 +123,7 @@ class MapEditor {
             { domId: 'offsetWidth', configKey: 'offsetWidth', type: 'number' },
             { domId: 'offsetHeight', configKey: 'offsetHeight', type: 'number' },
             { domId: 'opacity', configKey: 'opacity', type: 'range' },
+            { domId: 'flatTop', configKey: 'flatTop', type: 'checkbox' }
         ]);
         this.toolConfig.registerFields([
             { domId: 'colorInput', configKey: 'color', type: 'color' },
@@ -230,6 +231,8 @@ class MapEditor {
     }
 
     render() {
+
+        HexCoordinateSystem.setOrientation(this.configManager.get('flatTop'));
         this._clearCanvas()
         this._drawGrid();
         this._drawHexes();

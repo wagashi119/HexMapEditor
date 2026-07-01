@@ -4,15 +4,15 @@ class HexCoordinateSystem {
     static withMargin = 0;
     static offsetWidth = 0;
     static offsetHeight = 0;
-    static orientation = 'pointy'; // 'pointy' or 'flat'
+    static orientation = false; // 'pointy'(false) or 'flat'(true)
 
-    constructor(orientation = 'pointy') {
+    constructor(orientation = false) {
         HexCoordinateSystem.orientation = orientation;
     }
 
     static setOrientation(orientation) {
-        if (!['pointy', 'flat'].includes(orientation)) {
-            throw new Error('Orientation must be "pointy" or "flat"');
+        if (typeof orientation !== 'boolean') {
+            throw new Error('Orientation must be a boolean value');
         }
         this.orientation = orientation;
     }
@@ -24,7 +24,7 @@ class HexCoordinateSystem {
     static toPixel(q, r, canvasWidth, canvasHeight) {
         let x, y;
         
-        if (this.orientation === 'pointy') {
+        if (this.orientation === false) {
             // Pointy-top orientation
             x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r) + q * this.withMargin;
             y = this.hexSize * (3 / 2 * r) + r * this.heightMargin;
@@ -46,7 +46,7 @@ class HexCoordinateSystem {
 
         let q, r;
         
-        if (this.orientation === 'pointy') {
+        if (this.orientation === false) {
             // Pointy-top orientation
             const xScale = this.hexSize * Math.sqrt(3) + this.withMargin;
             const yScale = this.hexSize * 3 / 2 + this.heightMargin;
@@ -68,7 +68,7 @@ class HexCoordinateSystem {
     static toGenerickPixel(q, r, canvasWidth, canvasHeight) {
         let x, y;
         
-        if (this.orientation === 'pointy') {
+        if (this.orientation === false) {
             // Pointy-top orientation
             x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r);
             y = this.hexSize * (3 / 2 * r);

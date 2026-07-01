@@ -57,6 +57,7 @@
         }
         .settings {
             margin-top: 20px;
+            margin-bottom: 20px;
             padding: 10px;
             background-color: #e0e0e0;
             border: 1px solid #aaaaaa;
@@ -170,12 +171,29 @@
             </div>
         </div>
     </div>
+    <!-- 事前設定パネル-->
+    <details open="true" class="settings">
+        <summary style="user-select: none;"> キャンパス設定 </summary>
+        <div class="control-group">
+            <label>透明度: <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.8"></label>
+        </div>
+        <div class="control-group">
+            <label class="checkBox">縦向き: <input type="checkbox" id="flatTop" checked="false"></label>
+        </div>
+        <div class="control-group">
+            <label>プレビュー背景:<input type="file" accept="image/*" id="backGround"></label>
+        </div>
+    </details>
+
+    <!-- キャンバス -->
     <div id="canvasContainer">
         <canvas id="canvas" width="1115" height="862" oncontextmenu="return false;"></canvas>
         <canvas id="overlayCanvas" width="1115" height="862" oncontextmenu="return false;"></canvas>
     </div>
+
+    <!-- 設定パネル -->
     <details open="true" class="settings">
-        <summary> 設定 </summary>
+        <summary style="user-select: none;"> 設定 </summary>
         <div class="control-group">
             <label class="checkBox">タイル番号:<input type="checkbox" id="showTileNumbers" checked="true"></label>
             <label>番号色:<input type="color" id="tileNumberColor" value="#000000"></label>
@@ -219,12 +237,6 @@
             <div>
                 <button id="applySettingsBtn" style="border: 1px solid #000;">設定を適用</button>
             </div>
-        </div>
-        <div class="control-group">
-            <label>透明度: <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.8"></label>
-        </div>
-        <div class="control-group">
-            <label>プレビュー背景:<input type="file" accept="image/*" id="backGround"></label>
         </div>
     </details>
     <div class="settings">
