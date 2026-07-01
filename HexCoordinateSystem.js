@@ -4,35 +4,80 @@ class HexCoordinateSystem {
     static withMargin = 0;
     static offsetWidth = 0;
     static offsetHeight = 0;
+    static orientation = 'pointy'; // 'pointy' or 'flat'
 
-    constructor() {
+    constructor(orientation = 'pointy') {
+        HexCoordinateSystem.orientation = orientation;
+    }
+
+    static setOrientation(orientation) {
+        if (!['pointy', 'flat'].includes(orientation)) {
+            throw new Error('Orientation must be "pointy" or "flat"');
+        }
+        this.orientation = orientation;
+    }
+
+    static getOrientation() {
+        return this.orientation;
     }
 
     static toPixel(q, r, canvasWidth, canvasHeight) {
-        const x = this.hexSize * (3/2 * q) + q*this.withMargin;
-        const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r) + r*this.heightMargin;
+        let x, y;
+        
+        if (this.orientation === 'pointy') {
+            // Pointy-top orientation
+            x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r) + q * this.withMargin;
+            y = this.hexSize * (3 / 2 * r) + r * this.heightMargin;
+        } else {
+            // Flat-top orientation (default)
+            x = this.hexSize * (3 / 2 * q) + q * this.withMargin;
+            y = this.hexSize * (Math.sqrt(3) / 2 * q + Math.sqrt(3) * r) + r * this.heightMargin;
+        }
+        
         return {
-            x: x + canvasWidth / 2 + this.offsetWidth*this.hexSize,
-            y: y + canvasHeight / 2 + this.offsetHeight*this.hexSize
+            x: x + canvasWidth / 2 + this.offsetWidth * this.hexSize,
+            y: y + canvasHeight / 2 + this.offsetHeight * this.hexSize
         };
     }
 
     static toHex(x, y, canvasWidth, canvasHeight) {
-        x -= canvasWidth / 2 + this.offsetWidth*this.hexSize;
-        y -= canvasHeight / 2 + this.offsetHeight*this.hexSize;
+        x -= canvasWidth / 2 + this.offsetWidth * this.hexSize;
+        y -= canvasHeight / 2 + this.offsetHeight * this.hexSize;
 
-        const xScale = this.hexSize * 3 / 2 + this.withMargin;
-        const yQScale = this.hexSize * Math.sqrt(3) / 2;
-        const yRScale = this.hexSize * Math.sqrt(3) + this.heightMargin;
+        let q, r;
+        
+        if (this.orientation === 'pointy') {
+            // Pointy-top orientation
+            const xScale = this.hexSize * Math.sqrt(3) + this.withMargin;
+            const yScale = this.hexSize * 3 / 2 + this.heightMargin;
+            
+            q = (Math.sqrt(3) / 3 * x - 1 / 3 * y) / this.hexSize;
+            r = (2 / 3 * y) / this.hexSize;
+        } else {
+            // Flat-top orientation (default)
+            const xScale = this.hexSize * 3 / 2 + this.withMargin;
+            const yQScale = this.hexSize * Math.sqrt(3) / 2;
+            const yRScale = this.hexSize * Math.sqrt(3) + this.heightMargin;
 
-        const q = x / xScale;
-        const r = (y - yQScale * q) / yRScale;
+            q = x / xScale;
+            r = (y - yQScale * q) / yRScale;
+        }
 
         return this.round(q, r);
     }
     static toGenerickPixel(q, r, canvasWidth, canvasHeight) {
-        const x = this.hexSize * (3/2 * q);
-        const y = this.hexSize * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r);
+        let x, y;
+        
+        if (this.orientation === 'pointy') {
+            // Pointy-top orientation
+            x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r);
+            y = this.hexSize * (3 / 2 * r);
+        } else {
+            // Flat-top orientation (default)
+            x = this.hexSize * (3 / 2 * q);
+            y = this.hexSize * (Math.sqrt(3) / 2 * q + Math.sqrt(3) * r);
+        }
+        
         return {
             x: x + canvasWidth / 2,
             y: y + canvasHeight / 2

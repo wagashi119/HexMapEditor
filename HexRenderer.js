@@ -12,8 +12,11 @@ class HexRenderer {
      */
     _createHexPath(pixelX, pixelY, size = HexCoordinateSystem.hexSize) {
         const path = new Path2D();
+        // オリエンテーションに応じて開始角度を調整
+        const startAngle = HexCoordinateSystem.orientation === 'pointy' ? Math.PI / 6 : 0;
+        
         for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i;
+            const angle = startAngle + (Math.PI / 3) * i;
             const hx = pixelX + size * Math.cos(angle);
             const hy = pixelY + size * Math.sin(angle);
             if (i === 0) path.moveTo(hx, hy);
