@@ -149,6 +149,8 @@ class ConfigManager extends EventEmitter {
      * 設定をインポート（不足フィールドはデフォルト値で補完）
      */
     import(config) {
+
+        // 下の行を消すとなぜか本番環境でmergeがうまくいかないので残す
         console.log('ConfigManager: Importing config', config);
 
         // デフォルト値と入力を merge
