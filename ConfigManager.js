@@ -149,6 +149,8 @@ class ConfigManager extends EventEmitter {
      * 設定をインポート（不足フィールドはデフォルト値で補完）
      */
     import(config) {
+        console.log('ConfigManager: Importing config', config);
+
         // デフォルト値と入力を merge
         const merged = {
             ...this.config,
