@@ -63,13 +63,14 @@ class MapEditor {
                 tileNumberAlign: 'center',
                 
                 // グリッド表示
-                showGrid: true,
-                borderColor: '#000000',
+                showGrid: false,
+                borderColor: '#6a6a6a',
                 borderWidth: 1,           // NEW: グリッド枠線幅
                 
                 // ハイライト表示
+                showHigh: false,
                 highlightInterval: 5,
-                highlightColor: '#000000',
+                highlightColor: '#282828',
                 highlightWidth: 2,        // NEW: ハイライト枠線幅
                 
                 // キャンバス設定
@@ -151,6 +152,7 @@ class MapEditor {
             this.setTool(e.target.value);
         });
         document.getElementById('backGround').addEventListener('change', (e) => this.changeBackGround(e))
+        document.getElementById('clearBG').addEventListener('click', () => this.changeBackGround(""))
         document.getElementById('exportBtn').addEventListener('click', () => this._exportImage());
         document.getElementById('exportJsonBtn').addEventListener('click', () => this._exportJSON());
         document.getElementById('applySettingsBtn').addEventListener('click', () => this._applySettings());
@@ -217,6 +219,12 @@ class MapEditor {
     }
 
     changeBackGround(e) {
+
+        // 明示的ではないがメソッドを増やすのはめんどくさかったため
+        if (e == "") {
+            document.getElementById('canvasContainer').style.backgroundImage = '';
+            return;
+        }
 
         const file = e.target.files[0];
         console.log(file, file === undefined, !file, file === null);

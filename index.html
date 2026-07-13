@@ -16,8 +16,10 @@
             display: inline-block;
             width: 1185px;
             height: 910px;
-            border: 2px solid #000;
+            border: 20px solid #727272;
+            border-radius: 10px;
             background-color: #fff;
+
         }
         #canvas, #overlayCanvas {
             position: absolute;
@@ -108,11 +110,6 @@
     <h1>Hex Map Editor</h1>
     <p></p>
     <br>
-    <details id="description">
-        <summary>操作方法</summary>
-        <h4>左クリックでタイルを生成、右クリックで削除します。</h4>
-        <h4>ミドルクリックで、カーソル位置のタイルの設定をコピーできます。</h4>
-    </details>
     <div class="tools">
             <label>ツール: </label>
             <select id="toolSelect">
@@ -185,8 +182,14 @@
         </div>
         <div class="control-group">
             <label>プレビュー背景:<input type="file" accept="image/*" id="backGround"></label>
+            <input type="button" id="clearBG" value="リセット">
         </div>
     </details>
+    <pre>
+
+
+
+    </pre>
 
     <!-- キャンバス -->
     <div id="canvasContainer">
@@ -326,7 +329,7 @@
 
 
         versionCheck();
-        document.getElementById('description').open = reMaindCheck();
+        //document.getElementById('description').open = reMaindCheck();
 
         const configManager = new ConfigManager();
         const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
