@@ -70,12 +70,12 @@ class HexCoordinateSystem {
         
         if (this.orientation === false) {
             // Pointy-top orientation
-            x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r);
-            y = this.hexSize * (3 / 2 * r);
+            x = this.hexSize * (Math.sqrt(3) * q + Math.sqrt(3) / 2 * r) + q * this.withMargin;
+            y = this.hexSize * (3 / 2 * r) + r * this.heightMargin;
         } else {
             // Flat-top orientation (default)
-            x = this.hexSize * (3 / 2 * q);
-            y = this.hexSize * (Math.sqrt(3) / 2 * q + Math.sqrt(3) * r);
+            x = this.hexSize * (3 / 2 * q) + q * this.withMargin;
+            y = this.hexSize * (Math.sqrt(3) / 2 * q + Math.sqrt(3) * r) + r * this.heightMargin;
         }
         
         return {

@@ -125,8 +125,9 @@ class ConfigManager extends EventEmitter {
      */
     applyToDOM(config) {
         Object.entries(config).forEach(([key, value]) => {
-            if (!this.registeredFields[key]) return; 
+            if (!this.registeredFields[key]) return;
 
+            this.config[key] = value;
             const registered = this.registeredFields[key];
             if (registered.type === 'checkbox') {
                 registered.element.checked = value;

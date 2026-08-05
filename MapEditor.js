@@ -503,8 +503,18 @@ class MapEditor {
         }
 
         // 設定を復元
-        if (data.settings) {
-            this.configManager.applyToDOM(data.settings);
+        const settings = data.settings || data.setting;
+        if (settings) {
+            this.configManager.applyToDOM(settings);
+            HexCoordinateSystem.withMargin = this.configManager.get('marginWidth');
+            HexCoordinateSystem.heightMargin = this.configManager.get('marginHeight');
+            HexCoordinateSystem.offsetWidth = this.configManager.get('offsetWidth');
+            HexCoordinateSystem.offsetHeight = this.configManager.get('offsetHeight');
+            HexCoordinateSystem.setOrientation(this.configManager.get('flatTop'));
+        }
+
+        if (!data.canvas && typeof this.configManager.get('tileCols') === 'number' && typeof this.configManager.get('tileRows') === 'number') {
+            this._setCanvasSizeByTiles(this.configManager.get('tileCols'), this.configManager.get('tileRows'));
         }
 
         if (toolSetting) {
