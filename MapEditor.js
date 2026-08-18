@@ -427,9 +427,8 @@ class MapEditor {
 
     /**
      * マップデータを収集（エクスポート用）
-     * @private
      */
-    _collectMapData() {
+    collectMapData() {
         return {
             version: 1.1,
             canvas: {

@@ -336,7 +336,22 @@
         mapEditor._applySettings();
 
 
-        
+        window.onunload = () => {
+            console.log('onunload');
+            // オートで保存
+            localStorage.setItem('workingData', JSON.stringify(mapEditor.collectMapData()));
+        };
+        window.onload = () => {
+            console.log('onload');
+            const workingData = localStorage.getItem('workingData');
+            if (workingData) {
+                try {
+                    mapEditor.importJSON(workingData);
+                } catch (error) {
+                    console.error('Error importing working data:', error);
+                }
+            }
+        };
     </script>
 </body>
 </html>
