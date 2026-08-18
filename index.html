@@ -336,11 +336,13 @@
         mapEditor._applySettings();
 
 
-        window.onunload = () => {
-            console.log('onunload');
-            // オートで保存
-            localStorage.setItem('workingData', JSON.stringify(mapEditor.collectMapData()));
-        };
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('onunload');
+                // オートで保存
+                localStorage.setItem('workingData', JSON.stringify(mapEditor.collectMapData()));
+            }
+        });
         window.onload = () => {
             console.log('onload');
             const workingData = localStorage.getItem('workingData');
