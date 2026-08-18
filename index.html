@@ -173,7 +173,10 @@
     </div>
     <!-- 事前設定パネル-->
     <details open="true" class="settings">
-        <summary style="user-select: none;"> キャンパス設定 </summary>
+        <summary style="user-select: none;"> レイアウト </summary>
+        <div class="control-group">
+            <label style="background-color: #bdbdbd;">新規作成: <button id="newMapBtn">新規</button> </label>
+        </div>
         <div class="control-group">
             <label>透明度: <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.8"></label>
         </div>
@@ -335,7 +338,11 @@
         const mapEditor = new MapEditor('canvas', 'overlayCanvas', configManager);
         mapEditor._applySettings();
 
-
+        document.getElementById('newMapBtn').addEventListener('click', () => {
+            if (confirm('新規作成します。よろしいですか？')) {
+                mapEditor.dataManager.clear()
+            }
+        });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 console.log('onunload');
