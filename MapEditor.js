@@ -414,7 +414,7 @@ class MapEditor {
         //console.log(filename);
         if (filename === null) return;
 
-        const data = this._collectMapData();
+        const data = this.collectMapData();
         const json = JSON.stringify(data, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
